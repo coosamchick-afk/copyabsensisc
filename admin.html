@@ -1798,16 +1798,23 @@
             const j = jadwalMap[key];
 
             let kodeShift = j ? j.kodeShift : "-";
-            // Ambil ID Outlet yang valid (misal: OUT01), jika kosong ambil default outlet karyawan atau tanda strip
             let outletDisplay = (j && j.idOutlet) ? j.idOutlet : (p.defaultOutlet || "-");
 
+            // Aturan Pewarnaan Otomatis Shift (M2 - M5 otomatis hijau, Libur/X merah)
             let bgClass = "bg-white text-slate-800";
             const upperKode = kodeShift.toUpperCase();
 
+            // Jika termasuk libur / off / X
             if (upperKode === "LIBUR" || upperKode === "X" || upperKode === "OFF") {
               kodeShift = "X";
               bgClass = "bg-red-600 text-white font-black";
-            } else if (["M2", "M3", "M4", "M5", "PAGI", "SIANG"].some(m => upperKode.includes(m))) {
+            } 
+            // Jika kode shift mengandung M2, M3, M4, M5 (atau diawali M)
+            else if (["M2", "M3", "M4", "M5"].some(m => upperKode.includes(m)) || upperKode.startsWith("M")) {
+              bgClass = "bg-emerald-500 text-white font-extrabold";
+            } 
+            // Shift lain yang aktif bekerja
+            else if (upperKode !== "-") {
               bgClass = "bg-emerald-500 text-white font-extrabold";
             }
 
