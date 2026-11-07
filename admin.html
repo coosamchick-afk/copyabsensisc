@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
@@ -608,6 +609,54 @@
 
         </div>
 
+        <!-- ==================== SECTION: LAPORAN EKSEKUTIF JADWAL (DIREKTUR) ==================== -->
+        <div id="section-laporan-jadwal" class="content-section hidden animate-fade-up space-y-5">
+          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-indigo-600 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider">Executive Report</span>
+              <h2 class="text-lg font-extrabold text-slate-800 mt-1">Laporan Jadwal Kerja Direktur (Format Matriks)</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Tampilan tabel penuh sesuai tanggal dengan pewarnaan otomatis dan siap diunduh ke PNG.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="reportJadwalBulan" class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800">
+                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+              </select>
+              <select id="reportJadwalPeriode" class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-indigo-600">
+                <option value="1">Periode 1 (Tgl 1 – 15)</option>
+                <option value="2">Periode 2 (Tgl 16 – Akhir)</option>
+              </select>
+              <button onclick="loadLaporanJadwalDirektur()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-md transition">
+                🔍 Muat Laporan
+              </button>
+              <button onclick="downloadLaporanJadwalPNG()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md transition flex items-center gap-1.5">
+                <span>📥 Unduh PNG</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Area Tabel yang akan Dipotret menjadi PNG -->
+          <div id="printAreaLaporanJadwal" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 overflow-x-auto space-y-4">
+            <!-- Header Judul Laporan -->
+            <div class="text-center space-y-1 pb-2 border-b-2 border-slate-900">
+              <h1 class="text-base font-extrabold uppercase tracking-wider text-slate-900">JADWAL KERJA OFFICE</h1>
+              <p id="labelPeriodeReportText" class="text-xs font-bold text-slate-600">Periode 1 November 2026</p>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="tableLaporanDirektur" class="w-full text-[11px] border-collapse border border-slate-400 text-center whitespace-nowrap">
+                <thead id="theadLaporanDirektur" class="bg-amber-300 text-slate-900 font-extrabold"></thead>
+                <tbody id="tbodyLaporanDirektur" class="divide-y divide-slate-300 font-semibold text-slate-800">
+                  <tr><td colspan="32" class="py-10 text-center text-slate-400">Klik "Muat Laporan" untuk menampilkan data.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
 <!-- ==================== SECTION: MASTER JADWAL & LOKASI KERJA ==================== -->
         <div id="section-master-jadwal" class="content-section hidden animate-fade-up space-y-5">
           
@@ -712,6 +761,8 @@
       </main>
     </div>
   </div>
+
+  
 
   <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
   <div id="modalImport" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
@@ -1689,6 +1740,122 @@
         } catch (e) {
           Swal.fire("Error", "Gagal menghubungi server.", "error");
         }
+      });
+    }
+
+    // ==================== LAPORAN EKSEKUTIF JADWAL DIREKTUR & EKSPOR PNG ====================
+    async function loadLaporanJadwalDirektur() {
+      const bulan = document.getElementById("reportJadwalBulan").value;
+      const periode = document.getElementById("reportJadwalPeriode").value;
+      const tahun = new Date().getFullYear();
+      const tbody = document.getElementById("tbodyLaporanDirektur");
+      const thead = document.getElementById("theadLaporanDirektur");
+      const labelText = document.getElementById("labelPeriodeReportText");
+
+      const namaBulanArr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      labelText.textContent = `Periode ${periode === "1" ? "1 (Tanggal 1 – 15)" : "2 (Tanggal 16 – Akhir Bulan)"} ${namaBulanArr[bulan - 1]} ${tahun}`;
+
+      tbody.innerHTML = `<tr><td colspan="32" class="py-10 text-center font-bold text-indigo-600 animate-pulse">⏳ Menyiapkan matriks laporan...</td></tr>`;
+
+      try {
+        const res = await callGAS({ action: "getMasterJadwal", bulan, tahun, periode });
+        if (!res || res.status !== "success") {
+          tbody.innerHTML = `<tr><td colspan="32" class="py-6 text-center text-rose-600 font-bold">Gagal memuat data jadwal.</td></tr>`;
+          return;
+        }
+
+        const dates = res.dates || [];
+        const pegawai = res.pegawai || [];
+        const jadwalMap = res.jadwalMap || {};
+
+        // 1. Render Header Kolom Tanggal (Atas: Tanggal, Bawah: Store & Masuk)
+        let headRow1 = `<th rowspan="2" class="border border-slate-500 px-3 py-2 bg-amber-400 text-slate-900 font-black min-w-[160px]">Nama</th>`;
+        let headRow2 = ``;
+
+        dates.forEach(d => {
+          const tglNum = d.split("-")[2];
+          headRow1 += `<th colspan="2" class="border border-slate-500 px-1 py-1.5 bg-cyan-400 text-slate-900 font-black">${tglNum}</th>`;
+          headRow2 += `<th class="border border-slate-500 px-1 py-1 bg-amber-200 text-slate-900 text-[10px]">Store</th>` +
+                       `<th class="border border-slate-500 px-1 py-1 bg-amber-200 text-slate-900 text-[10px]">Masuk</th>`;
+        });
+
+        thead.innerHTML = `<tr>${headRow1}</tr><tr>${headRow2}</tr>`;
+
+        if (pegawai.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="32" class="py-6 text-center text-slate-400">Tidak ada data pegawai.</td></tr>`;
+          return;
+        }
+
+        // 2. Render Baris Karyawan
+        tbody.innerHTML = pegawai.map(p => {
+          let rowCells = `<td class="border border-slate-400 px-3 py-2 font-extrabold text-left bg-white">${p.nama}</td>`;
+
+          dates.forEach(tgl => {
+            const key = `${p.idKaryawan}_${tgl}`;
+            const j = jadwalMap[key];
+
+            let kodeShift = j ? j.kodeShift : "-";
+            let namaOutlet = j && j.namaOutlet ? j.namaOutlet : "-";
+            // Singkat nama outlet jika terlalu panjang agar pas di tabel
+            if (namaOutlet.length > 8) namaOutlet = namaOutlet.slice(0, 8);
+
+            // Aturan Pewarnaan Otomatis
+            let bgClass = "bg-white text-slate-800";
+            const upperKode = kodeShift.toUpperCase();
+
+            if (upperKode === "LIBUR" || upperKode === "X" || upperKode === "OFF") {
+              kodeShift = "X";
+              bgClass = "bg-red-600 text-white font-black"; // Merah untuk libur
+            } else if (["M2", "M3", "M4", "M5", "PAGI", "SIANG"].some(m => upperKode.includes(m))) {
+              bgClass = "bg-emerald-500 text-white font-extrabold"; // Hijau untuk shift kerja utama
+            }
+
+            rowCells += `
+              <td class="border border-slate-300 px-1 py-1 text-[10px] font-bold text-slate-700 bg-slate-50">${namaOutlet}</td>
+              <td class="border border-slate-300 px-1 py-1 text-[10px] ${bgClass}">${kodeShift}</td>
+            `;
+          });
+
+          return `<tr class="hover:bg-slate-50">${rowCells}</tr>`;
+        }).join("");
+
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="32" class="py-6 text-center text-rose-600 font-bold">Terjadi kesalahan koneksi.</td></tr>`;
+      }
+    }
+
+    // 3. Fungsi Eksekusi Unduh ke PNG Menggunakan html2canvas
+    function downloadLaporanJadwalPNG() {
+      const element = document.getElementById("printAreaLaporanJadwal");
+      if (!element) return;
+
+      Swal.fire({
+        title: "Memproses Gambar...",
+        text: "Sedang merender tabel laporan ke format PNG beresolusi tinggi.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      html2canvas(element, {
+        scale: 2, // Meningkatkan kualitas ketajaman gambar
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      }).then(canvas => {
+        const imageURL = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = imageURL;
+        link.download = `Jadwal_Kerja_Office_${document.getElementById("reportJadwalPeriode").value}_${document.getElementById("reportJadwalBulan").value}.png`;
+        link.click();
+        Swal.close();
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil Diunduh!",
+          text: "File PNG laporan jadwal siap dikirim ke Direktur.",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }).catch(err => {
+        Swal.fire("Gagal", "Terjadi kesalahan saat merender gambar.", "error");
       });
     }
     
