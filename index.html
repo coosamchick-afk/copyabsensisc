@@ -301,25 +301,28 @@
             </div>
 
             <!-- Shift Selector Pill -->
-            <!-- Kotak Jadwal & Lokasi Hari Ini (Dinamis) -->
-              <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-right shrink-0">
+            <!-- Kotak Jadwal & Lokasi Hari Ini (Dirapikan & Lebih Profesional) -->
+              <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 text-right shrink-0 min-w-[155px]">
                 <span class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400">JADWAL HARI INI</span>
                 <p id="lockedShiftName" class="text-xs font-extrabold text-slate-800 mt-0.5">Memuat Jadwal...</p>
                 <p id="jamKerjaDisplay" class="text-[11px] font-bold text-red-600">08:00:00 - 17:00:00</p>
                 <p id="lockedOutletName" class="text-[10px] font-extrabold text-slate-600 mt-0.5">📍 -</p>
-                <div class="mt-1.5 flex flex-wrap justify-end gap-1">
-                  <!-- Tombol Isi Jadwal Mandiri (Otomatis muncul saat dibuka Admin, hilang saat dikunci) -->
-                  <button type="button" id="btnBukaIsiJadwalMandiri" onclick="openIsiJadwalMandiriModal()" class="hidden items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold shadow-2xs animate-pulse transition">
-                    <span>📅 Isi Jadwal</span>
+                
+                <!-- Tombol Aksi (Tertata Rapi & Profesional) -->
+                <div class="mt-2 pt-2 border-t border-slate-200/60 flex flex-col gap-1.5">
+                  <!-- Tombol Isi/Edit Jadwal Mandiri (Hijau Zamrud Modern) -->
+                  <button type="button" id="btnBukaIsiJadwalMandiri" onclick="openIsiJadwalMandiriModal()" class="hidden w-full items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-[10px] font-extrabold shadow-sm animate-pulse transition">
+                    <span>📅 Edit Jadwal Mandiri</span>
                   </button>
-                  <button type="button" onclick="openRevisiJadwalModal()" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-extrabold transition">
-                    <span>✎ Revisi</span>
+
+                  <!-- Tombol Revisi (Minimalis & Elegan) -->
+                  <button type="button" onclick="openRevisiJadwalModal()" class="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-white hover:bg-red-50 text-red-600 border border-red-200 text-[10px] font-extrabold transition shadow-2xs">
+                    <span>✎ Ajukan Revisi Jam/Lokasi</span>
                   </button>
                 </div>
+
                 <select id="shiftSelect" class="hidden"></select>
               </div>
-
-          <!-- Deretan 6 Ikon Bulat Menu Cepat Anda Tetap Utuh di Bawah Sini -->
 
           <!-- QUICK ACTION MENU GRID (5 ICONS) -->
           <div class="grid grid-cols-5 gap-2 pt-4 text-center">
