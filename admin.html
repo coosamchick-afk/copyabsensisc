@@ -1470,10 +1470,10 @@
 
       let headHtml = `<tr>
         <th class="py-3 px-4 sticky left-0 bg-slate-900 z-20 border-r border-slate-800">Nama Karyawan</th>
-        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700 min-w-[140px]">⚡ Set 1 Baris</th>`;
+        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700 min-w-[150px]">⚡ Set Cepat (Baris)</th>`;
       dates.forEach(d => {
         const tglNum = d.split("-")[2];
-        headHtml += `<th class="py-3 px-2 text-center border-r border-slate-800 min-w-[125px]">Tgl ${tglNum}</th>`;
+        headHtml += `<th class="py-3 px-2 text-center border-r border-slate-800 min-w-[135px]">Tgl ${tglNum}</th>`;
       });
       headHtml += `</tr>`;
       thead.innerHTML = headHtml;
@@ -1495,14 +1495,23 @@
           const selOutlet = (saved && saved.idOutlet) ? saved.idOutlet : defaultOut;
 
           return `
-            <td class="p-1.5 border-r border-slate-100 align-top">
-              <div class="space-y-1 jadwal-cell-box" data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}">
-                <select class="jadwal-shift-select emp-shift-${p.idKaryawan} w-full bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-[10px] font-extrabold text-slate-800">
-                  ${shifts.map(s => `<option value="${s.kode}" ${s.kode === selShift ? "selected" : ""}>⏰ ${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
-                </select>
-                <select class="jadwal-outlet-select emp-outlet-${p.idKaryawan} w-full bg-red-50/50 border border-red-200 rounded-lg px-1.5 py-1 text-[10px] font-bold text-red-700">
-                  ${outlets.map(o => `<option value="${o.idOutlet}" ${o.idOutlet === selOutlet ? "selected" : ""}>📍 ${o.namaOutlet}</option>`).join("")}
-                </select>
+            <td class="p-1 border-r border-slate-100 align-top bg-white hover:bg-slate-50/80 transition">
+              <!-- Mini-Card Rapi per Sel Tanggal -->
+              <div class="space-y-1 jadwal-cell-box p-1.5 rounded-xl border border-slate-200/80 bg-slate-50/60 shadow-2xs" data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}">
+                <!-- Baris Shift -->
+                <div class="flex items-center gap-1">
+                  <span class="text-[10px]" title="Jam Shift">⏰</span>
+                  <select class="jadwal-shift-select emp-shift-${p.idKaryawan} w-full bg-white border border-slate-200 rounded-lg px-1 py-1 text-[10px] font-extrabold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                    ${shifts.map(s => `<option value="${s.kode}" ${s.kode === selShift ? "selected" : ""}>${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
+                  </select>
+                </div>
+                <!-- Baris Outlet -->
+                <div class="flex items-center gap-1">
+                  <span class="text-[10px]" title="Lokasi Outlet">📍</span>
+                  <select class="jadwal-outlet-select emp-outlet-${p.idKaryawan} w-full bg-red-50/40 border border-red-200/80 rounded-lg px-1 py-1 text-[10px] font-bold text-red-700 focus:border-red-500 focus:outline-none">
+                    ${outlets.map(o => `<option value="${o.idOutlet}" ${o.idOutlet === selOutlet ? "selected" : ""}>${o.namaOutlet}</option>`).join("")}
+                  </select>
+                </div>
               </div>
             </td>
           `;
@@ -1510,16 +1519,17 @@
 
         return `
           <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-2.5 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200">
-              ${p.nama}
-              <span class="block text-[10px] font-semibold text-slate-400">${p.idKaryawan}</span>
+            <td class="py-3 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200 shadow-xs">
+              <div class="text-xs">${p.nama}</div>
+              <span class="text-[10px] font-semibold text-slate-400">${p.idKaryawan}</span>
             </td>
-            <td class="p-1.5 bg-amber-50/60 border-r border-slate-200 space-y-1">
-              <select onchange="applyQuickRowShift('${p.idKaryawan}', this.value)" class="w-full bg-white border border-amber-300 rounded-lg px-1.5 py-1 text-[10px] font-extrabold text-amber-900">
-                <option value="">⚡ Semua Shift...</option>${shiftOpts}
+            <td class="p-2 bg-amber-50/50 border-r border-slate-200 space-y-1.5 align-middle">
+              <div class="text-[9px] font-extrabold text-amber-800 uppercase tracking-wider mb-0.5">⚡ Set 1 Baris:</div>
+              <select onchange="applyQuickRowShift('${p.idKaryawan}', this.value)" class="w-full bg-white border border-amber-300 rounded-lg px-2 py-1.5 text-[10px] font-extrabold text-amber-900 focus:outline-none">
+                <option value="">-- Pilih Shift --</option>${shiftOpts}
               </select>
-              <select onchange="applyQuickRowOutlet('${p.idKaryawan}', this.value)" class="w-full bg-white border border-amber-300 rounded-lg px-1.5 py-1 text-[10px] font-bold text-amber-900">
-                <option value="">📍 Semua Outlet...</option>${outletOpts}
+              <select onchange="applyQuickRowOutlet('${p.idKaryawan}', this.value)" class="w-full bg-white border border-amber-300 rounded-lg px-2 py-1.5 text-[10px] font-bold text-amber-900 focus:outline-none">
+                <option value="">-- Pilih Outlet --</option>${outletOpts}
               </select>
             </td>
             ${cellsHtml}
