@@ -301,17 +301,23 @@
             </div>
 
             <!-- Shift Selector Pill -->
-            <!-- Kotak Jadwal Masuk Hari Ini -->
-            <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-right shrink-0">
-              <span class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400">JADWAL HARI INI</span>
-              <p id="lockedShiftName" class="text-xs font-extrabold text-slate-800 mt-0.5">Memuat Jadwal...</p>
-              <p id="jamKerjaDisplay" class="text-[11px] font-bold text-red-600">08:00:00 - 17:00:00</p>
-              <button type="button" onclick="openRevisiJadwalModal()" class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-extrabold transition">
-                <span>✎ Revisi Jam</span>
-              </button>
-              <select id="shiftSelect" class="hidden"></select>
-            </div>
-          </div> <!-- 👈 PASTIKAN PENUTUP BARIS PROFIL ATAS INI ADA -->
+            <!-- Kotak Jadwal & Lokasi Hari Ini (Dinamis) -->
+              <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-right shrink-0">
+                <span class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400">JADWAL HARI INI</span>
+                <p id="lockedShiftName" class="text-xs font-extrabold text-slate-800 mt-0.5">Memuat Jadwal...</p>
+                <p id="jamKerjaDisplay" class="text-[11px] font-bold text-red-600">08:00:00 - 17:00:00</p>
+                <p id="lockedOutletName" class="text-[10px] font-extrabold text-slate-600 mt-0.5">📍 -</p>
+                <div class="mt-1.5 flex flex-wrap justify-end gap-1">
+                  <!-- Tombol Isi Jadwal Mandiri (Otomatis muncul saat dibuka Admin, hilang saat dikunci) -->
+                  <button type="button" id="btnBukaIsiJadwalMandiri" onclick="openIsiJadwalMandiriModal()" class="hidden items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold shadow-2xs animate-pulse transition">
+                    <span>📅 Isi Jadwal</span>
+                  </button>
+                  <button type="button" onclick="openRevisiJadwalModal()" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-extrabold transition">
+                    <span>✎ Revisi</span>
+                  </button>
+                </div>
+                <select id="shiftSelect" class="hidden"></select>
+              </div>
 
           <!-- Deretan 6 Ikon Bulat Menu Cepat Anda Tetap Utuh di Bawah Sini -->
 
@@ -1164,6 +1170,13 @@
             </div>
 
             <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1">Lokasi Outlet Kerja Baru</label>
+              <select id="revOutletBaru" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-red-600">
+                <option value="">-- Pilih Lokasi Outlet --</option>
+              </select>
+            </div>
+
+            <div>
               <label class="block text-xs font-extrabold text-slate-700 mb-1">Alasan Perubahan Jam Masuk</label>
               <textarea id="revAlasan" rows="2" placeholder="Contoh: Tukar shift atas instruksi SPV / keperluan mendadak..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:border-red-600"></textarea>
             </div>
@@ -1185,6 +1198,42 @@
       </div>
     </div>
 
+       <!-- ==================== MODAL: PENGISIAN JADWAL MANDIRI KARYAWAN ==================== -->
+    <div id="isiJadwalMandiriModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl relative animate-fade-up max-h-[92vh] flex flex-col overflow-hidden">
+        <div class="bg-gradient-to-br from-emerald-600 to-teal-800 px-5 py-4 text-white flex items-center justify-between shrink-0">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase tracking-wider">📅 Self-Service Roster</span>
+            <h3 id="titleIsiJadwalMandiri" class="text-base font-extrabold mt-1">Isi Jadwal & Lokasi Kerja</h3>
+          </div>
+          <button onclick="closeIsiJadwalMandiriModal()" class="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center font-bold">✕</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-3 flex-1">
+          <!-- Set Cepat Semua Tanggal Sekaligus -->
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2">
+            <p class="text-[11px] font-extrabold text-emerald-900">⚡ Set Cepat Seluruh Tanggal di Periode Ini:</p>
+            <div class="grid grid-cols-2 gap-2">
+              <select id="quickMandiriShift" onchange="applyQuickMandiriAll('shift', this.value)" class="bg-white border border-emerald-300 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-800">
+                <option value="">-- Semua Shift --</option>
+              </select>
+              <select id="quickMandiriOutlet" onchange="applyQuickMandiriAll('outlet', this.value)" class="bg-white border border-emerald-300 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-800">
+                <option value="">-- Semua Outlet --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Daftar Baris Tanggal Periode -->
+          <div id="listTanggalMandiriContainer" class="space-y-2">
+            <p class="text-xs text-slate-400 text-center py-6">Memuat daftar tanggal periode...</p>
+          </div>
+
+          <button type="button" id="btnSubmitJadwalMandiri" onclick="submitIsiJadwalMandiri()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-extrabold shadow-lg transition">
+            📤 Kirim Jadwal & Lokasi Saya ke Admin
+          </button>
+        </div>
+      </div>
+    </div>
     
     <!-- ==================== FLOATING GLASS BOTTOM NAVIGATION DOCK ==================== -->
     <div id="bottomNav" class="hidden fixed bottom-4 left-4 right-4 max-w-[calc(28rem-2rem)] mx-auto glass-card rounded-3xl px-5 py-2.5 flex justify-between items-center z-30 shadow-xl shadow-slate-900/10">
@@ -2386,11 +2435,29 @@ async function submitAttendance(tipe) {
       });
     }
 
-    // Render Jadwal Terkunci di Kartu Atas & Otomatis Isi Plan Besok
-function applyLockedScheduleUI(dashData) {
+    // Render Jadwal & Lokasi Outlet Terkunci + Otomatis Set GPS Outlet & Plan Besok
+    let formMandiriState = { dates: [], shifts: [], outlets: [], periodeKey: "" };
+
+    function applyLockedScheduleUI(dashData) {
       const nameEl = document.getElementById("lockedShiftName");
       const timeEl = document.getElementById("jamKerjaDisplay");
+      const outEl = document.getElementById("lockedOutletName");
       const hiddenSelect = document.getElementById("shiftSelect");
+      const btnMandiri = document.getElementById("btnBukaIsiJadwalMandiri");
+
+      // Tampilkan atau sembunyikan tombol "📅 Isi Jadwal" sesuai saklar Admin
+      if (btnMandiri) {
+        if (dashData && dashData.configIsiJadwal && dashData.configIsiJadwal.isOpen) {
+          btnMandiri.classList.remove("hidden");
+          btnMandiri.classList.add("inline-flex");
+          btnMandiri.innerHTML = dashData.configIsiJadwal.sudahIsi
+            ? `<span>✅ Edit Jadwal (${dashData.configIsiJadwal.periodeKey})</span>`
+            : `<span>📅 Isi Jadwal (${dashData.configIsiJadwal.periodeKey})</span>`;
+        } else {
+          btnMandiri.classList.add("hidden");
+          btnMandiri.classList.remove("inline-flex");
+        }
+      }
 
       if (dashData && dashData.jadwalHariIni) {
         const j = dashData.jadwalHariIni;
@@ -2398,39 +2465,174 @@ function applyLockedScheduleUI(dashData) {
         if (timeEl) {
           timeEl.textContent = j.kodeShift === "LIBUR" ? "STATUS: LIBUR / OFF" : `${j.jamMasuk} - ${j.jamPulang}`;
         }
+        if (outEl) {
+          outEl.textContent = j.kodeShift === "LIBUR" ? "📍 -" : `📍 ${j.namaOutlet || "OFFICE"}`;
+        }
         if (hiddenSelect) {
           hiddenSelect.innerHTML = `<option value="${j.kodeShift}" selected>${j.namaShift}</option>`;
           hiddenSelect.value = j.kodeShift;
         }
-      } else if (dashData && dashData.shiftHariIni) {
-        if (nameEl) nameEl.textContent = dashData.shiftHariIni.nama || "Jadwal Hari Ini";
-        if (timeEl) timeEl.textContent = `${dashData.shiftHariIni.jamMasuk} - ${dashData.shiftHariIni.jamPulang}`;
+        // Update titik koordinat GPS & nama outlet aktif hari ini mengikuti jadwal!
+        if (j.outletDetail && currentUser) {
+          currentUser.outlet = j.outletDetail;
+          const uOutEl = document.getElementById("userOutlet");
+          if (uOutEl) uOutEl.textContent = j.outletDetail.namaOutlet;
+        }
       } else {
         if (nameEl) nameEl.textContent = "Belum Dirilis";
         if (timeEl) timeEl.textContent = "Hubungi Admin";
+        if (outEl && currentUser && currentUser.outlet) outEl.textContent = `📍 ${currentUser.outlet.namaOutlet}`;
       }
 
+      // Otomatis isi Plan Masuk Besok & Lokasi Outlet Besok pada form Report Pekerjaan
       const planBesokInput = document.getElementById("rkPlanJamOtomatis");
-      if (planBesokInput) {
-        if (dashData && dashData.jadwalBesok) {
-          const jb = dashData.jadwalBesok;
+      const planOutSelect = document.getElementById("rkPlanOutlet");
+      if (dashData && dashData.jadwalBesok) {
+        const jb = dashData.jadwalBesok;
+        if (planBesokInput) {
           planBesokInput.value = jb.kodeShift === "LIBUR"
             ? "LIBUR / OFF (Sesuai Master Jadwal)"
             : `${jb.jamMasuk.slice(0, 5)} WIB — ${jb.namaShift} (${jb.jamMasuk} - ${jb.jamPulang})`;
-        } else {
-          planBesokInput.value = "Jadwal besok belum dirilis Admin";
         }
+        if (planOutSelect && jb.namaOutlet) {
+          if (!Array.from(planOutSelect.options).some(o => o.value === jb.namaOutlet)) {
+            planOutSelect.insertAdjacentHTML("beforeend", `<option value="${jb.namaOutlet}">${jb.namaOutlet}</option>`);
+          }
+          planOutSelect.value = jb.namaOutlet;
+        }
+      } else if (planBesokInput) {
+        planBesokInput.value = "Jadwal besok belum dirilis Admin";
       }
     }
 
-    // Panggil applyLockedScheduleUI setiap kali openReportKerjaModal() dibuka
-    // (Di dalam submitReportKerja(), ganti baris const planJamMasuk = ... menjadi:
-    //  const planJamMasuk = document.getElementById("rkPlanJamOtomatis").value; )
-
-    function openRevisiJadwalModal() {
+    // ==================== PENGISIAN JADWAL MANDIRI KARYAWAN ====================
+    async function openIsiJadwalMandiriModal() {
       if (!currentUser) return showToast("Silakan login terlebih dahulu!", "error");
-      const today = new Date().toISOString().split("T")[0];
-      document.getElementById("revTanggalTarget").value = today;
+      const modal = document.getElementById("isiJadwalMandiriModal");
+      const container = document.getElementById("listTanggalMandiriContainer");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 animate-pulse">⏳ Memuat form jadwal periode...</p>`;
+
+      try {
+        const res = await callGAS({ action: "getFormIsiJadwalKaryawan", idKaryawan: currentUser.idKaryawan });
+        if (res.status !== "success") {
+          closeIsiJadwalMandiriModal();
+          return showToast(res.message || "Pengisian jadwal sedang dikunci.", "error");
+        }
+
+        formMandiriState = res;
+        document.getElementById("titleIsiJadwalMandiri").textContent = `Isi Jadwal & Outlet (${res.periodeKey})`;
+
+        const shiftOpts = res.shifts.map(s => `<option value="${s.kode}">${s.nama} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("");
+        const outletOpts = res.outlets.map(o => `<option value="${o.idOutlet}">${o.namaOutlet}</option>`).join("");
+
+        document.getElementById("quickMandiriShift").innerHTML = `<option value="">-- Pilih Shift --</option>` + shiftOpts;
+        document.getElementById("quickMandiriOutlet").innerHTML = `<option value="">-- Pilih Outlet --</option>` + outletOpts;
+
+        const defOut = (currentUser.outlet && currentUser.outlet.idOutlet) ? currentUser.outlet.idOutlet : (res.outlets[0] ? res.outlets[0].idOutlet : "");
+
+        container.innerHTML = res.dates.map(tgl => {
+          const saved = res.existing[tgl] || {};
+          const selShift = saved.kodeShift || (res.shifts[0] ? res.shifts[0].kode : "");
+          const selOut = saved.idOutlet || defOut;
+
+          return `
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 mandiri-row-item" data-date="${tgl}">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-slate-800">📅 Tanggal: ${tgl}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 mb-0.5">Jam Masuk / Shift</label>
+                  <select class="mandiri-shift-sel w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-extrabold text-slate-800">
+                    ${res.shifts.map(s => `<option value="${s.kode}" ${s.kode === selShift ? "selected" : ""}>${s.nama} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 mb-0.5">Lokasi Outlet</label>
+                  <select class="mandiri-outlet-sel w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-extrabold text-red-600">
+                    ${res.outlets.map(o => `<option value="${o.idOutlet}" ${o.idOutlet === selOut ? "selected" : ""}>📍 ${o.namaOutlet}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (e) {
+        container.innerHTML = `<p class="text-xs text-rose-500 text-center py-4">Gagal memuat form jadwal.</p>`;
+      }
+    }
+
+    function closeIsiJadwalMandiriModal() {
+      const modal = document.getElementById("isiJadwalMandiriModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function applyQuickMandiriAll(type, val) {
+      if (!val) return;
+      const selector = type === "shift" ? ".mandiri-shift-sel" : ".mandiri-outlet-sel";
+      document.querySelectorAll(selector).forEach(el => { el.value = val; });
+    }
+
+    async function submitIsiJadwalMandiri() {
+      const rows = document.querySelectorAll(".mandiri-row-item");
+      if (rows.length === 0) return;
+
+      const shiftMap = {};
+      formMandiriState.shifts.forEach(s => { shiftMap[s.kode] = s; });
+      const outletMap = {};
+      formMandiriState.outlets.forEach(o => { outletMap[o.idOutlet] = o.namaOutlet; });
+
+      const items = [];
+      rows.forEach(r => {
+        const tgl = r.getAttribute("data-date");
+        const kodeShift = r.querySelector(".mandiri-shift-sel").value;
+        const idOutlet = r.querySelector(".mandiri-outlet-sel").value;
+        const sh = shiftMap[kodeShift] || { kode: kodeShift, nama: kodeShift, jamMasuk: "08:00:00", jamPulang: "17:00:00" };
+        items.push({
+          idKaryawan: currentUser.idKaryawan,
+          nama: currentUser.nama,
+          tanggal: tgl,
+          kodeShift: sh.kode,
+          namaShift: sh.nama,
+          jamMasuk: sh.jamMasuk,
+          jamPulang: sh.jamPulang,
+          idOutlet: idOutlet,
+          namaOutlet: outletMap[idOutlet] || idOutlet
+        });
+      });
+
+      const btn = document.getElementById("btnSubmitJadwalMandiri");
+      btn.disabled = true;
+      btn.textContent = "Mengirim Jadwal & Lokasi...";
+
+      try {
+        const res = await callGAS({
+          action: "submitIsiJadwalKaryawan",
+          idKaryawan: currentUser.idKaryawan,
+          items: items
+        });
+        if (res.status === "success") {
+          showToast(res.message, "success");
+          closeIsiJadwalMandiriModal();
+          refreshDashboardData(false);
+        } else {
+          showToast(res.message, "error");
+        }
+      } catch (e) {
+        showToast("Gagal mengirim jadwal ke server", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "📤 Kirim Jadwal & Lokasi Saya ke Admin";
+      }
+    }
+
+    // ==================== PENGAJUAN REVISI JAM & LOKASI OUTLET ====================
+    async function openRevisiJadwalModal() {
+      if (!currentUser) return showToast("Silakan login terlebih dahulu!", "error");
+      document.getElementById("revTanggalTarget").value = new Date().toISOString().split("T")[0];
       document.getElementById("revAlasan").value = "";
 
       const sel = document.getElementById("revShiftBaru");
@@ -2439,6 +2641,15 @@ function applyLockedScheduleUI(dashData) {
         shifts.map(s => `<option value="${s.nama}" data-masuk="${s.jamMasuk}" data-pulang="${s.jamPulang}">${s.nama} (${s.jamMasuk} - ${s.jamPulang})</option>`).join("") +
         `<option value="CUSTOM" data-masuk="08:00:00" data-pulang="17:00:00">⚡ Jam Khusus / Custom Manual</option>` +
         `<option value="LIBUR" data-masuk="LIBUR" data-pulang="LIBUR">🏖️ Tukar Libur / OFF</option>`;
+
+      // Muat pilihan lokasi outlet baru
+      if (typeof ensureDaftarOutletLoaded === "function") await ensureDaftarOutletLoaded();
+      const selOut = document.getElementById("revOutletBaru");
+      if (selOut) {
+        const defOutName = (currentUser.outlet && currentUser.outlet.namaOutlet) ? currentUser.outlet.namaOutlet : "";
+        const listOut = (typeof cachedDaftarOutlet !== "undefined" && cachedDaftarOutlet.length > 0) ? cachedDaftarOutlet : [defOutName];
+        selOut.innerHTML = listOut.map(n => `<option value="${n}" ${n === defOutName ? "selected" : ""}>📍 ${n}</option>`).join("");
+      }
 
       const modal = document.getElementById("revisiJadwalModal");
       modal.classList.remove("hidden");
@@ -2465,10 +2676,12 @@ function applyLockedScheduleUI(dashData) {
       const shiftBaru = document.getElementById("revShiftBaru").value;
       const jamMasukBaru = document.getElementById("revJamMasukBaru").value.trim();
       const jamPulangBaru = document.getElementById("revJamPulangBaru").value.trim();
+      const outletEl = document.getElementById("revOutletBaru");
+      const namaOutletBaru = outletEl ? outletEl.value : "";
       const alasan = document.getElementById("revAlasan").value.trim();
 
       if (!tanggalTarget || !shiftBaru || !jamMasukBaru || !alasan) {
-        return showToast("Lengkapi tanggal, jam masuk baru, dan alasan!", "error");
+        return showToast("Lengkapi tanggal, jam masuk baru, lokasi outlet, dan alasan!", "error");
       }
 
       const btn = document.getElementById("btnSubmitRevisi");
@@ -2484,6 +2697,8 @@ function applyLockedScheduleUI(dashData) {
           shiftBaru,
           jamMasukBaru,
           jamPulangBaru: jamPulangBaru || "-",
+          idOutletBaru: namaOutletBaru,
+          namaOutletBaru: namaOutletBaru,
           alasan
         });
         if (res.status === "success") {
@@ -2507,13 +2722,11 @@ function applyLockedScheduleUI(dashData) {
         const res = await callGAS({ action: "getRevisiJadwal", idKaryawan: currentUser.idKaryawan });
         if (res.status === "success" && res.data.length > 0) {
           box.innerHTML = res.data.slice(0, 6).map(r => {
-            const badgeColor = r.status === "Disetujui"
-              ? "bg-emerald-100 text-emerald-700"
-              : (r.status === "Ditolak" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700");
+            const badgeColor = r.status === "Disetujui" ? "bg-emerald-100 text-emerald-700" : (r.status === "Ditolak" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700");
             return `
               <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs flex items-center justify-between">
                 <div>
-                  <p class="font-extrabold text-slate-800">📅 ${r.tanggalTarget} ➔ ${r.jamMasukBaru}</p>
+                  <p class="font-extrabold text-slate-800">📅 ${r.tanggalTarget} ➔ ${r.jamMasukBaru} (${r.namaOutletBaru || "-"})</p>
                   <p class="text-[11px] text-slate-500">Alasan: ${r.alasan}</p>
                 </div>
                 <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeColor}">${r.status}</span>
@@ -2521,13 +2734,12 @@ function applyLockedScheduleUI(dashData) {
             `;
           }).join("");
         } else {
-          box.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Belum ada pengajuan revisi jam masuk.</p>`;
+          box.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Belum ada pengajuan revisi.</p>`;
         }
       } catch (e) {
         box.innerHTML = `<p class="text-xs text-rose-500 text-center py-3">Gagal memuat riwayat.</p>`;
       }
-    }
-    
+    }    
   </script>
 </body>
 </html>
