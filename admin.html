@@ -1748,7 +1748,7 @@
       });
     }
 
-    // ==================== LAPORAN EKSEKUTIF JADWAL DIREKTUR & EKSPOR PNG ====================
+    // ==================== LAPORAN EKSEKUTIF JADWAL DIREKTUR (DIperbarui) ====================
     async function loadLaporanJadwalDirektur() {
       const bulan = document.getElementById("reportJadwalBulan").value;
       const periode = document.getElementById("reportJadwalPeriode").value;
@@ -1773,8 +1773,8 @@
         const pegawai = res.pegawai || [];
         const jadwalMap = res.jadwalMap || {};
 
-        // 1. Render Header Kolom Tanggal (Atas: Tanggal, Bawah: Store & Masuk)
-        let headRow1 = `<th rowspan="2" class="border border-slate-500 px-3 py-2 bg-amber-400 text-slate-900 font-black min-w-[160px]">Nama</th>`;
+        // 1. Render Header Kolom Tanggal
+        let headRow1 = `<th rowspan="2" class="border border-slate-500 px-3 py-2 bg-amber-400 text-slate-900 font-black min-w-[150px]">Nama</th>`;
         let headRow2 = ``;
 
         dates.forEach(d => {
@@ -1791,7 +1791,7 @@
           return;
         }
 
-        // 2. Render Baris Karyawan
+        // 2. Render Baris Karyawan (Mengganti nama outlet panjang dengan ID/Singkatan ringkas)
         tbody.innerHTML = pegawai.map(p => {
           let rowCells = `<td class="border border-slate-400 px-3 py-2 font-extrabold text-left bg-white">${p.nama}</td>`;
 
@@ -1800,23 +1800,29 @@
             const j = jadwalMap[key];
 
             let kodeShift = j ? j.kodeShift : "-";
-            let namaOutlet = j && j.namaOutlet ? j.namaOutlet : "-";
-            // Singkat nama outlet jika terlalu panjang agar pas di tabel
-            if (namaOutlet.length > 8) namaOutlet = namaOutlet.slice(0, 8);
+            let outletDisplay = "-";
 
-            // Aturan Pewarnaan Otomatis
+            if (j && j.idOutlet) {
+              // Mengambil ID Outlet ringkas (misal: OUT01 atau potong maksimal 6 karakter)
+              outletDisplay = j.idOutlet.length > 6 ? j.idOutlet.slice(0, 6) : j.idOutlet;
+            } else if (j && j.namaOutlet) {
+              // Fallback jika idOutlet kosong, ambil kata pertama/singkatan nama outlet
+              outletDisplay = j.namaOutlet.split(" ")[0].slice(0, 6);
+            }
+
+            // Aturan Pewarnaan Otomatis Shift (M2 - M5 hijau, Libur merah)
             let bgClass = "bg-white text-slate-800";
             const upperKode = kodeShift.toUpperCase();
 
             if (upperKode === "LIBUR" || upperKode === "X" || upperKode === "OFF") {
               kodeShift = "X";
-              bgClass = "bg-red-600 text-white font-black"; // Merah untuk libur
+              bgClass = "bg-red-600 text-white font-black";
             } else if (["M2", "M3", "M4", "M5", "PAGI", "SIANG"].some(m => upperKode.includes(m))) {
-              bgClass = "bg-emerald-500 text-white font-extrabold"; // Hijau untuk shift kerja utama
+              bgClass = "bg-emerald-500 text-white font-extrabold";
             }
 
             rowCells += `
-              <td class="border border-slate-300 px-1 py-1 text-[10px] font-bold text-slate-700 bg-slate-50">${namaOutlet}</td>
+              <td class="border border-slate-300 px-1 py-1 text-[10px] font-bold text-slate-700 bg-slate-50">${outletDisplay}</td>
               <td class="border border-slate-300 px-1 py-1 text-[10px] ${bgClass}">${kodeShift}</td>
             `;
           });
@@ -1829,22 +1835,23 @@
       }
     }
 
-    // 3. Fungsi Eksekusi Unduh ke PNG Menggunakan html2canvas
+    // 3. Fungsi Unduh PNG (Capture area yang tampil di layar saja tanpa melebar berlebih)
     function downloadLaporanJadwalPNG() {
       const element = document.getElementById("printAreaLaporanJadwal");
       if (!element) return;
 
       Swal.fire({
         title: "Memproses Gambar...",
-        text: "Sedang merender tabel laporan ke format PNG beresolusi tinggi.",
+        text: "Sedang mengambil tangkapan layar tabel laporan...",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
       });
 
       html2canvas(element, {
-        scale: 2, // Meningkatkan kualitas ketajaman gambar
+        scale: 2,
         useCORS: true,
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
+        windowWidth: element.scrollWidth // Membatasi render sesuai lebar isi kontainer tabel agar pas di layar
       }).then(canvas => {
         const imageURL = canvas.toDataURL("image/png");
         const link = document.createElement("a");
@@ -1855,7 +1862,47 @@
         Swal.fire({
           icon: "success",
           title: "Berhasil Diunduh!",
-          text: "File PNG laporan jadwal siap dikirim ke Direktur.",
+          text: "File PNG laporan jadwal berhasil disimpan.",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }).catch(err => {
+        Swal.fire("Gagal", "Terjadi kesalahan saat merender gambar.", "error");
+      });
+    }
+
+    function downloadLaporanJadwalPNG() {
+      const element = document.getElementById("printAreaLaporanJadwal");
+      if (!element) return;
+
+      Swal.fire({
+        title: "Memproses Gambar Penuh...",
+        text: "Sedang merender seluruh kolom tabel (termasuk yang tertutup)...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      // Mengambil lebar total keseluruhan isi tabel secara utuh
+      const fullWidth = element.scrollWidth;
+      const fullHeight = element.scrollHeight;
+
+      html2canvas(element, {
+        scale: 2, // Ketajaman gambar tinggi
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: fullWidth,     // Memaksa lebar canvas mencakup seluruh tabel ke samping
+        windowWidth: fullWidth // Membuka lebar virtual window agar tidak ada yang terpotong
+      }).then(canvas => {
+        const imageURL = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = imageURL;
+        link.download = `Jadwal_Kerja_Office_Periode_${document.getElementById("reportJadwalPeriode").value}_Bulan_${document.getElementById("reportJadwalBulan").value}.png`;
+        link.click();
+        Swal.close();
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil Diunduh!",
+          text: "File PNG laporan jadwal lengkap berhasil disimpan.",
           timer: 2000,
           showConfirmButton: false
         });
