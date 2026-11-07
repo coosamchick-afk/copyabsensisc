@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Samchick Back Office — Executive HR Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fade-up { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-scale-in { animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .card-surface {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    }
+
+    .nav-item {
+      transition: all 0.2s ease;
+    }
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(220, 38, 38, 0.16) 0%, rgba(220, 38, 38, 0.04) 100%);
+      color: #ffffff;
+      border-left: 3px solid #ef4444;
+    }
+  </style>
+</head>
+<body class="text-slate-800 overflow-x-hidden">
+
+  <!-- ==================== VIEW 1: EXECUTIVE LOGIN SCREEN ==================== -->
+  <div id="loginView" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090d16] overflow-hidden">
+    <!-- Ambient Background Glows -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-red-600/20 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-indigo-600/15 blur-3xl pointer-events-none"></div>
+
+    <div class="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 animate-fade-up">
+      <div class="flex flex-col items-center text-center mb-8">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-rose-700 flex items-center justify-center shadow-lg shadow-red-600/30 mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <span class="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-extrabold uppercase tracking-widest">Back Office System</span>
+        <h1 class="text-2xl font-extrabold text-white mt-2.5 tracking-tight">Samchick Admin Portal</h1>
+        <p class="text-xs text-slate-400 mt-1">Masuk menggunakan kredensial administrator resmi</p>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5 ml-1">Username Admin</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </span>
+            <input type="text" id="username" required placeholder="Contoh: samchick-office"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl pl-10 pr-4 py-3.5 text-xs font-semibold text-white placeholder-slate-600 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5 ml-1">Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </span>
+            <input type="password" id="password" required placeholder="••••••••"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl pl-10 pr-10 py-3.5 text-xs font-semibold text-white placeholder-slate-600 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition">
+            <button type="button" onclick="toggleAdminPass()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btnLogin"
+          class="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 active:scale-[0.99] text-white py-3.5 rounded-2xl text-xs font-extrabold tracking-wide transition shadow-lg shadow-red-600/25 mt-2 flex items-center justify-center gap-2">
+          <span>Masuk ke Back Office</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== WRAPPER DASHBOARD ADMIN ==================== -->
+  <div id="dashboardWrapper" class="hidden min-h-screen flex flex-col bg-[#f8fafc]">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 hidden lg:hidden"></div>
+
+    <!-- ==================== SIDEBAR NAVIGATION (DARK OBSIDIAN) ==================== -->
+    <aside id="adminSidebar" class="w-64 bg-[#0b0f19] text-slate-300 fixed inset-y-0 left-0 z-40 flex flex-col transition-transform duration-300 ease-in-out transform -translate-x-full lg:translate-x-0 border-r border-slate-800/80">
+      <!-- Brand Logo -->
+      <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-rose-700 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-red-600/20">
+            SC
+          </div>
+          <div>
+            <span class="font-extrabold text-white text-sm tracking-wide block leading-none">SAMCHICK</span>
+            <span class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase">HR Management</span>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex-1 overflow-y-auto py-5 px-3 space-y-1">
+        <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Menu Utama</p>
+
+        <a href="#" id="nav-dashboard" onclick="showSection('section-dashboard', this)" class="nav-item active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span>Dashboard Analitik</span>
+        </a>
+
+        <!-- Master Data Dropdown -->
+        <div>
+          <button onclick="toggleSubmenu('submenu-master')" class="w-full nav-item flex justify-between items-center px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+              <span>Master Data</span>
+            </div>
+            <svg id="icon-submenu-master" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          <div id="submenu-master" class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1 hidden">
+            <a href="#" id="nav-pegawai" onclick="showSection('section-data-pegawai', this)" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Data Pegawai
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Data Jabatan siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Data Jabatan
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Data Jam Kerja siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Data Jam Kerja
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Data Lokasi siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Data Lokasi
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Libur Nasional siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Libur Nasional
+            </a>
+          </div>
+        </div>
+
+        <p class="px-3 pt-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Operasional & Laporan</p>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Data Izin & Sakit</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Permohonan Cuti</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Laporan Absensi</span>
+        </a>
+
+        <a href="#" id="nav-laporan-harian" onclick="showSection('section-laporan-master', this); loadMasterLaporan();" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Laporan Detail Harian</span>
+        </a>
+
+        <p class="px-3 pt-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Sistem</p>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Pengaturan Web</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Manajemen Admin</span>
+        </a>
+
+        <a href="#" id="nav-master-jadwal" onclick="showSection('section-master-jadwal', this); loadMasterJadwalPeriode();" class="nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Master Jadwal Masuk</span>
+          </div>
+          <span class="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-extrabold">P1 & P2</span>
+        </a>
+
+        <a href="#" id="nav-approve-revisi" onclick="showSection('section-approve-revisi', this); loadAdminRevisiJadwal();" class="nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Approve Revisi Jam</span>
+          </div>
+          <span id="badgePendingRevisi" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-extrabold">0</span>
+        </a>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-slate-800/80 bg-slate-950/40">
+        <button onclick="logoutAdmin()" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white text-xs font-extrabold transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Keluar Sesi</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN WORKSPACE AREA ==================== -->
+    <div id="mainContent" class="lg:ml-64 flex-1 flex flex-col min-h-screen transition-all duration-300">
+
+      <!-- Top Glass Navbar -->
+      <header class="h-16 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-4 lg:px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h12M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 id="topPageTitle" class="text-sm font-extrabold text-slate-800 leading-tight">Dashboard Analitik</h2>
+            <p id="headerDate" class="text-[11px] font-semibold text-slate-400">Memuat tanggal...</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Sync Button -->
+          <button onclick="loadAdminData(true)" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition" title="Refresh Data">
+            <svg id="adminSyncIcon" class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span class="hidden sm:inline">Sinkronisasi</span>
+          </button>
+
+          <!-- Admin Profile Pill -->
+          <div class="flex items-center gap-2.5 pl-2 border-l border-slate-200">
+            <div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 font-extrabold text-xs flex items-center justify-center border border-red-200">
+              AD
+            </div>
+            <div class="hidden sm:block text-left">
+              <p id="adminNameDisplay" class="text-xs font-extrabold text-slate-800 leading-none">Super Admin</p>
+              <span class="text-[10px] font-semibold text-emerald-600">● Online</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <main class="p-4 lg:p-8 flex-1 space-y-6">
+
+        <!-- ==================== SECTION 1: DASHBOARD STATISTIK ==================== -->
+        <div id="section-dashboard" class="content-section animate-fade-up space-y-6">
+
+          <!-- 4 Modern KPI Stat Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <!-- Card 1: Karyawan -->
+            <div onclick="showSection('section-data-pegawai', document.getElementById('nav-pegawai'))" class="card-surface rounded-2xl p-5 cursor-pointer hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Karyawan</p>
+                  <h3 id="statKaryawan" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-sky-600">
+                <span>Kelola Data Pegawai</span>
+                <span>➔</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Jabatan -->
+            <div class="card-surface rounded-2xl p-5 hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Master Jabatan</p>
+                  <h3 id="statJabatan" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-400">
+                <span>Posisi & Divisi Aktif</span>
+                <span>✓</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Lokasi Kantor -->
+            <div class="card-surface rounded-2xl p-5 hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lokasi Outlet</p>
+                  <h3 id="statOutlet" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-400">
+                <span>Titik Koordinat GPS</span>
+                <span>✓</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Jam Kerja -->
+            <div class="card-surface rounded-2xl p-5 hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Shift Jam Kerja</p>
+                  <h3 id="statJam" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-400">
+                <span>Jadwal Operasional</span>
+                <span>✓</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel Kontrol Validasi & Rilis Slip Gaji Global -->
+          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-amber-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-sm font-extrabold text-slate-800">Otorisasi Akses Slip Gaji Karyawan (Global)</h3>
+                  <span id="badgeStatusSlip" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-100 text-rose-700">🔒 Terkunci (Belum Divalidasi)</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Selama dikunci, karyawan tidak dapat membuka menu Slip Gaji Rahasia di aplikasi sampai perhitungan selesai divalidasi HRD.</p>
+              </div>
+            </div>
+            <button id="btnToggleSlip" onclick="toggleValidasiSlipGaji()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-md shadow-emerald-600/20 transition shrink-0 active:scale-95">
+              🔓 Validasi & Rilis Slip Gaji
+            </button>
+          </div>
+
+          <!-- Grid Tabel: Absensi Hari Ini & Permohonan Cuti -->
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- Tabel Absensi Hari Ini (2 Kolom Lebar) -->
+            <div class="xl:col-span-2 card-surface rounded-2xl overflow-hidden">
+              <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-800">Monitor Kehadiran Hari Ini</h3>
+                  <p class="text-[11px] text-slate-400">Daftar karyawan yang telah melakukan scan masuk/pulang</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-extrabold">Live Data</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left whitespace-nowrap">
+                  <thead class="bg-slate-50/80 text-slate-500 uppercase font-extrabold border-b border-slate-100">
+                    <tr>
+                      <th class="py-3.5 px-5">No</th>
+                      <th class="py-3.5 px-5">Nama Karyawan</th>
+                      <th class="py-3.5 px-5 text-center">Scan Masuk</th>
+                      <th class="py-3.5 px-5 text-center">Scan Pulang</th>
+                      <th class="py-3.5 px-5 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableAbsensiBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                    <tr><td colspan="5" class="py-8 text-center text-slate-400">Memuat data kehadiran hari ini...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Tabel Permohonan Cuti Menunggu (1 Kolom) -->
+            <div class="card-surface rounded-2xl overflow-hidden flex flex-col">
+              <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-800">Antrean Permohonan Cuti</h3>
+                  <p class="text-[11px] text-slate-400">Menunggu persetujuan HRD</p>
+                </div>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              </div>
+              <div class="overflow-x-auto flex-1">
+                <table class="w-full text-xs text-left whitespace-nowrap">
+                  <thead class="bg-slate-50/80 text-slate-500 uppercase font-extrabold border-b border-slate-100">
+                    <tr>
+                      <th class="py-3 px-4">Nama</th>
+                      <th class="py-3 px-4">Tanggal Cuti</th>
+                      <th class="py-3 px-4 text-center">Hari</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableCutiBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                    <tr><td colspan="3" class="py-8 text-center text-slate-400">Memuat permohonan cuti...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================== SECTION 2: DATA PEGAWAI ==================== -->
+        <div id="section-data-pegawai" class="content-section hidden animate-fade-up space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-1">
+                <span>Master Data</span> <span>/</span> <span class="text-red-600">Data Pegawai</span>
+              </div>
+              <h2 class="text-xl font-extrabold text-slate-800">Manajemen Data Pegawai</h2>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button onclick="toggleModal('modalImport')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold shadow-md shadow-amber-500/20 flex items-center gap-2 transition active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                <span>Import Excel</span>
+              </button>
+              <button onclick="openTambahPegawaiBaru()" class="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold shadow-md shadow-red-600/20 flex items-center gap-2 transition active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <span>Tambah Pegawai</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <!-- Filter & Search Bar -->
+            <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
+                <span>Tampilkan</span>
+                <select id="entriesPegawai" onchange="renderTabelPegawai()" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-500">
+                  <option value="10">10</option>
+                  <option value="25" selected>25</option>
+                  <option value="50">50</option>
+                  <option value="9999">Semua</option>
+                </select>
+                <span>baris</span>
+              </div>
+
+              <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </span>
+                <input type="text" id="searchPegawai" oninput="renderTabelPegawai()" placeholder="Cari nama, NIP, jabatan, outlet..."
+                  class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/10">
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left whitespace-nowrap">
+                <thead class="text-slate-500 uppercase font-extrabold border-b border-slate-200 bg-slate-50/80">
+                  <tr>
+                    <th class="py-3.5 px-4">No</th>
+                    <th class="py-3.5 px-4">ID Karyawan</th>
+                    <th class="py-3.5 px-4">Nama Lengkap</th>
+                    <th class="py-3.5 px-4">Username Login</th>
+                    <th class="py-3.5 px-4">Jabatan</th>
+                    <th class="py-3.5 px-4">ID Outlet</th>
+                    <th class="py-3.5 px-4 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tablePegawaiBody" class="divide-y divide-slate-100 text-slate-700 font-semibold">
+                  <tr><td colspan="7" class="py-8 text-center text-slate-400">Memuat data pegawai...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SECTION 3: TAMBAH / EDIT DATA PEGAWAI ==================== -->
+        <div id="section-tambah-pegawai" class="content-section hidden animate-fade-up max-w-3xl">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <span class="text-xs font-bold text-red-600 uppercase tracking-wider">Formulir Master Karyawan</span>
+              <h2 id="titleFormPegawai" class="text-xl font-extrabold text-slate-800 mt-0.5">Tambah Data Pegawai</h2>
+            </div>
+            <button onclick="resetFormPegawai()" class="px-3.5 py-2 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-700 text-xs font-bold transition">
+              ← Kembali
+            </button>
+          </div>
+
+          <div class="card-surface rounded-3xl p-6 sm:p-8">
+            <form id="formTambahPegawai" class="space-y-5">
+              <input type="hidden" id="oldPegId" value="">
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">ID Karyawan / NIP</label>
+                  <input type="text" id="pegId" required placeholder="Contoh: EMP02 atau SAM-1"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
+                </div>
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Nama Lengkap</label>
+                  <input type="text" id="pegNama" required placeholder="Nama Lengkap Sesuai Master"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Username (Untuk Login HP)</label>
+                  <input type="text" id="pegUser" required placeholder="Username unik tanpa spasi"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
+                </div>
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Password (Untuk Login HP)</label>
+                  <input type="text" id="pegPass" required placeholder="Password minimal 6 karakter"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jabatan</label>
+                  <select id="pegJabatan" required class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Penempatan Outlet</label>
+                  <select id="pegOutlet" required class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition"></select>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 pt-5 border-t border-slate-100">
+                <button type="button" onclick="submitPegawai()" id="btnSimpanPegawai"
+                  class="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white px-6 py-3 rounded-xl text-xs font-extrabold shadow-lg shadow-red-600/20 transition active:scale-95">
+                  ✓ Simpan Data Pegawai
+                </button>
+                <button type="button" onclick="resetFormPegawai()"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-6 py-3 rounded-xl text-xs font-extrabold transition">
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ==================== SECTION 4: LAPORAN DETAIL HARIAN (SHEET MASTER A-L) ==================== -->
+        <div id="section-laporan-master" class="content-section hidden animate-fade-up space-y-5">
+          
+          <!-- Baris Kontrol Filter A1 & B1 + Rentang Tanggal C1 & D1 -->
+          <div class="card-surface rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-l-4 border-l-red-600">
+            <div>
+              <span class="text-[10px] font-extrabold text-red-600 uppercase tracking-widest">Live Spreadsheet Sync • Sheet Master</span>
+              <h2 class="text-lg font-extrabold text-slate-800 mt-0.5">Laporan Detail Harian (Kolom A – L)</h2>
+              <p class="text-xs text-slate-500">Ubah dropdown Bulan/Periode atau centang kolom Keterangan (L) untuk memperbarui Spreadsheet secara langsung.</p>
+            </div>
+
+            <!-- Kontrol Sel A1, B1, C1, D1 -->
+            <div class="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+              <!-- Dropdown A1: Bulan -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Bulan (Sel A1)</label>
+                <select id="masterDropBulan" onchange="onChangeMasterFilter()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-600 cursor-pointer">
+                  <option value="">Memuat...</option>
+                </select>
+              </div>
+
+              <!-- Dropdown B1: Periode -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Periode (Sel B1)</label>
+                <select id="masterDropPeriode" onchange="onChangeMasterFilter()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-600 cursor-pointer">
+                  <option value="">-</option>
+                </select>
+              </div>
+
+              <!-- Info C1 & D1: Tanggal Periode -->
+              <div class="pl-2 border-l border-slate-200">
+                <span class="block text-[10px] font-extrabold text-slate-400 uppercase">Rentang Tanggal (C1 - D1)</span>
+                <div class="mt-1 flex items-center gap-1.5 text-xs font-extrabold text-slate-700">
+                  <span id="masterTglAwal" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200">-</span>
+                  <span class="text-slate-400">s/d</span>
+                  <span id="masterTglAkhir" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200">-</span>
+                </div>
+              </div>
+
+              <button onclick="loadMasterLaporan(true)" class="p-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow transition" title="Muat Ulang Sheet Master">
+                🔄
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabel Lengkap Kolom A sampai L -->
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto max-h-[75vh]">
+              <table class="w-full text-xs text-left whitespace-nowrap border-collapse">
+                <tbody id="tableMasterBody" class="divide-y divide-slate-200">
+                  <tr>
+                    <td colspan="12" class="py-12 text-center text-slate-400 font-semibold">
+                      Klik menu atau tombol refresh untuk memuat tabel dari Sheet Master...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================== SECTION: MASTER JADWAL MASUK (PERIODE 1 & 2) ==================== -->
+        <div id="section-master-jadwal" class="content-section hidden animate-fade-up space-y-5">
+          
+          <!-- Banner Aturan Rilis Jadwal -->
+          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-red-600 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-extrabold uppercase tracking-wider">Kedisiplinan Presensi</span>
+                <span id="deadlineJadwalBadge" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold">⏰ Batas Rilis: Tgl 30/31 & Tgl 15</span>
+              </div>
+              <h2 class="text-lg font-extrabold text-slate-800 mt-1">Master Jadwal Masuk Karyawan Per Periode</h2>
+              <p class="text-xs text-slate-500 mt-0.5">
+                • <b>Periode 1 (Tgl 1 – 15):</b> Maksimal dirilis tanggal <b>30/31 (akhir bulan sebelumnya)</b>.<br>
+                • <b>Periode 2 (Tgl 16 – 30/31):</b> Maksimal dirilis tanggal <b>15 bulan berjalan</b>.
+              </p>
+            </div>
+
+            <!-- Filter Bulan, Tahun & Periode -->
+            <div class="flex flex-wrap items-end gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Bulan</label>
+                <select id="jadwalBulan" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800">
+                  <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                  <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                  <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                  <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Tahun</label>
+                <input type="number" id="jadwalTahun" value="2026" onchange="loadMasterJadwalPeriode()" class="mt-0.5 w-20 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Periode Jadwal</label>
+                <select id="jadwalPeriode" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-red-600">
+                  <option value="1">Periode 1 (Tgl 1 – 15)</option>
+                  <option value="2">Periode 2 (Tgl 16 – Akhir Bulan)</option>
+                </select>
+              </div>
+              <button onclick="saveMasterJadwalPeriode()" id="btnSimpanJadwal" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md shadow-emerald-600/20 transition">
+                💾 Simpan & Rilis Jadwal
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabel Matriks Jadwal Karyawan x Tanggal -->
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto max-h-[70vh]">
+              <table class="w-full text-xs text-left whitespace-nowrap border-collapse">
+                <thead id="theadMasterJadwal" class="bg-slate-900 text-white uppercase font-extrabold sticky top-0 z-10"></thead>
+                <tbody id="tbodyMasterJadwal" class="divide-y divide-slate-200 font-semibold text-slate-700">
+                  <tr><td colspan="18" class="py-10 text-center text-slate-400">Memuat matriks jadwal...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SECTION: APPROVE REVISI JAM MASUK ==================== -->
+        <div id="section-approve-revisi" class="content-section hidden animate-fade-up space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold text-amber-600 uppercase tracking-wider">Otorisasi Perubahan Shift</span>
+              <h2 class="text-xl font-extrabold text-slate-800">Persetujuan Revisi Jam Masuk Karyawan</h2>
+              <p class="text-xs text-slate-500">Saat Anda menyetujui pengajuan, Master Jadwal karyawan pada tanggal tersebut otomatis diperbarui.</p>
+            </div>
+            <button onclick="loadAdminRevisiJadwal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition">
+              🔄 Muat Ulang Antrean
+            </button>
+          </div>
+
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-extrabold border-b border-slate-200">
+                  <tr>
+                    <th class="py-3.5 px-4">Waktu Pengajuan</th>
+                    <th class="py-3.5 px-4">Nama Karyawan</th>
+                    <th class="py-3.5 px-4">Tanggal Target</th>
+                    <th class="py-3.5 px-4">Jadwal Awal</th>
+                    <th class="py-3.5 px-4">Usulan Jam Baru</th>
+                    <th class="py-3.5 px-4">Alasan</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-center">Aksi Approval</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyApproveRevisi" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                  <tr><td colspan="8" class="py-8 text-center text-slate-400">Memuat daftar pengajuan revisi...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
+  <div id="modalImport" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scale-in">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+        <div>
+          <h3 class="text-sm font-extrabold text-slate-800">Import Data Pegawai Massal</h3>
+          <p class="text-[11px] text-slate-400">Unggah file Excel (.xlsx) sesuai struktur template</p>
+        </div>
+        <button onclick="toggleModal('modalImport')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div onclick="document.getElementById('fileImportExcel').click()"
+          class="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-2xl p-6 text-center cursor-pointer bg-slate-50/60 hover:bg-red-50/30 transition">
+          <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="document.getElementById('fileNameDisplay').textContent = this.files[0] ? this.files[0].name : 'Pilih file Excel (.xlsx)'">
+          <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 mx-auto flex items-center justify-center mb-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          </div>
+          <p id="fileNameDisplay" class="text-xs font-extrabold text-slate-700">Klik untuk memilih file Excel (.xlsx)</p>
+          <p class="text-[10px] text-slate-400 mt-1">Kolom: ID_Karyawan, Username, Password, Nama, Jabatan, ID_Outlet</p>
+        </div>
+
+        <button onclick="downloadTemplate()" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition">
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Download Sample Template Excel</span>
+        </button>
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+        <button onclick="toggleModal('modalImport')" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-100">Batal</button>
+        <button onclick="submitImport()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md shadow-emerald-600/20">✓ Proses Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCRIPT LOGIC ==================== -->
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyyfi645Jyz5p_DzVodWycOf0Ui-ocGdUSxwdJqB3mVvQXtq6N9E-1GfJ_sBy_kV9mSyQ/exec";
+
+    let allPegawaiData = [];
+    let currentSlipReleased = false;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("headerDate").textContent = new Date().toLocaleDateString("id-ID", {
+        weekday: "long", day: "2-digit", month: "long", year: "numeric"
+      });
+      const adminSession = localStorage.getItem("admin_session");
+      if (adminSession) {
+        const adminData = JSON.parse(adminSession);
+        document.getElementById("adminNameDisplay").textContent = adminData.nama;
+        document.getElementById("loginView").classList.add("hidden");
+        document.getElementById("dashboardWrapper").classList.remove("hidden");
+        loadAdminData(false);
+      }
+    });
+
+    function toggleAdminPass() {
+      const p = document.getElementById("password");
+      p.type = p.type === "password" ? "text" : "password";
+    }
+
+    // Responsive Sidebar Toggle (Works on both Mobile & Desktop)
+    function toggleSidebar() {
+      const sidebar = document.getElementById("adminSidebar");
+      const mainContent = document.getElementById("mainContent");
+      const overlay = document.getElementById("mobileOverlay");
+
+      if (window.innerWidth < 1024) {
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
+      } else {
+        sidebar.classList.toggle("lg:translate-x-0");
+        sidebar.classList.toggle("lg:-translate-x-full");
+        mainContent.classList.toggle("lg:ml-64");
+        mainContent.classList.toggle("lg:ml-0");
+      }
+    }
+
+    function toggleSubmenu(id) {
+      const el = document.getElementById(id);
+      const icon = document.getElementById("icon-" + id);
+      el.classList.toggle("hidden");
+      icon.classList.toggle("rotate-180");
+    }
+
+    function showSection(sectionId, navEl = null) {
+      document.querySelectorAll(".content-section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById(sectionId).classList.remove("hidden");
+
+      const titles = {
+        "section-dashboard": "Dashboard Analitik",
+        "section-data-pegawai": "Master Data Pegawai",
+        "section-tambah-pegawai": "Formulir Data Pegawai"
+      };
+      document.getElementById("topPageTitle").textContent = titles[sectionId] || "Dashboard Admin";
+
+      if (navEl) {
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+        navEl.classList.add("active");
+      }
+
+      if (window.innerWidth < 1024) {
+        document.getElementById("adminSidebar").classList.add("-translate-x-full");
+        document.getElementById("mobileOverlay").classList.add("hidden");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openTambahPegawaiBaru() {
+      document.getElementById("formTambahPegawai").reset();
+      document.getElementById("oldPegId").value = "";
+      document.getElementById("titleFormPegawai").textContent = "Tambah Data Pegawai Baru";
+      showSection("section-tambah-pegawai");
+    }
+
+    function toggleModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.toggle("hidden");
+      modal.classList.toggle("flex");
+    }
+
+    async function callGAS(payload) {
+      const res = await fetch(GAS_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
+      return JSON.parse(await res.text());
+    }
+
+    // Login Handler
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnLogin");
+      btn.innerHTML = `<span>Memverifikasi...</span>`;
+      btn.disabled = true;
+      try {
+        const res = await callGAS({ action: "adminLogin", username: username.value, password: password.value });
+        if (res.status === "success") {
+          localStorage.setItem("admin_session", JSON.stringify(res.admin));
+          document.getElementById("adminNameDisplay").textContent = res.admin.nama;
+          document.getElementById("loginView").classList.add("hidden");
+          document.getElementById("dashboardWrapper").classList.remove("hidden");
+          loadAdminData(false);
+        } else {
+          Swal.fire("Akses Ditolak", res.message, "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Gagal terhubung ke server GAS", "error");
+      } finally {
+        btn.innerHTML = `<span>Masuk ke Back Office</span>`;
+        btn.disabled = false;
+      }
+    });
+
+    // Load Dashboard & Master Data
+    async function loadAdminData(showToast = false) {
+      const icon = document.getElementById("adminSyncIcon");
+      if (icon) icon.classList.add("animate-spin");
+
+      try {
+        const res = await callGAS({ action: "getAdminDashboard" });
+        if (res.status === "success") {
+          document.getElementById("statKaryawan").textContent = res.stats.karyawan;
+          document.getElementById("statJabatan").textContent = res.stats.jabatan;
+          document.getElementById("statOutlet").textContent = res.stats.outlet;
+          document.getElementById("statJam").textContent = res.stats.jamKerja;
+
+          renderSlipToggleUI(Boolean(res.slipReleased));
+
+          // Populate Dropdowns
+          const selJab = document.getElementById("pegJabatan");
+          if (res.jabatan) selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
+
+          const selOut = document.getElementById("pegOutlet");
+          if (res.outlet) selOut.innerHTML = `<option value="">- Pilih Penempatan Outlet -</option>` + res.outlet.map(o => `<option value="${o.id}">${o.id} — ${o.nama}</option>`).join("");
+
+          // Render Absensi Hari Ini
+          const tbAbs = document.getElementById("tableAbsensiBody");
+          if (res.absensi && res.absensi.length > 0) {
+            tbAbs.innerHTML = res.absensi.map(a => `
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-5 text-slate-400">${a.no}</td>
+                <td class="py-3.5 px-5 font-bold text-slate-800">${a.nama}</td>
+                <td class="py-3.5 px-5 text-center"><span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold">${a.jamMasuk}</span></td>
+                <td class="py-3.5 px-5 text-center"><span class="px-2.5 py-1 rounded-lg ${a.jamPulang !== '00:00:00' ? 'bg-sky-50 text-sky-700' : 'bg-slate-100 text-slate-400'} font-bold">${a.jamPulang}</span></td>
+                <td class="py-3.5 px-5 text-right"><span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold">Hadir</span></td>
+              </tr>
+            `).join("");
+          } else {
+            tbAbs.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada aktivitas absensi hari ini.</td></tr>`;
+          }
+
+          // Render Permohonan Cuti
+          const tbCuti = document.getElementById("tableCutiBody");
+          if (tbCuti) {
+            if (res.cuti && res.cuti.length > 0) {
+              tbCuti.innerHTML = res.cuti.map(c => `
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-4 font-bold text-slate-800">${c.nama}</td>
+                  <td class="py-3 px-4 text-slate-500 text-[11px]">${c.tanggalCuti}</td>
+                  <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-extrabold text-[11px]">${c.jumlah} Hr</span></td>
+                </tr>
+              `).join("");
+            } else {
+              tbCuti.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-400">Tidak ada permohonan cuti baru.</td></tr>`;
+            }
+          }
+
+          // Simpan & Render Tabel Pegawai
+          allPegawaiData = res.pegawai || [];
+          renderTabelPegawai();
+
+          if (showToast) {
+            Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Data berhasil disinkronkan", showConfirmButton: false, timer: 2000 });
+          }
+        }
+      } catch (err) {
+        console.error("Gagal memuat data admin:", err);
+      } finally {
+        if (icon) icon.classList.remove("animate-spin");
+      }
+    }
+
+    // Live Search & Entries Filter Pegawai
+    function renderTabelPegawai() {
+      const tbPegawai = document.getElementById("tablePegawaiBody");
+      const keyword = (document.getElementById("searchPegawai")?.value || "").toLowerCase().trim();
+      const limit = parseInt(document.getElementById("entriesPegawai")?.value || "25", 10);
+
+      const filtered = allPegawaiData.filter(p =>
+        String(p.idKaryawan).toLowerCase().includes(keyword) ||
+        String(p.nama).toLowerCase().includes(keyword) ||
+        String(p.username).toLowerCase().includes(keyword) ||
+        String(p.jabatan).toLowerCase().includes(keyword) ||
+        String(p.idOutlet).toLowerCase().includes(keyword)
+      ).slice(0, limit);
+
+      if (filtered.length > 0) {
+        tbPegawai.innerHTML = filtered.map((p, idx) => `
+          <tr class="hover:bg-slate-50/90 transition">
+            <td class="py-3.5 px-4 text-slate-400">${idx + 1}</td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-extrabold text-[11px]">${p.idKaryawan}</span></td>
+            <td class="py-3.5 px-4 font-extrabold text-slate-800">${p.nama}</td>
+            <td class="py-3.5 px-4 text-slate-500">${p.username}</td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-[11px]">${p.jabatan}</span></td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-[11px]">${p.idOutlet}</span></td>
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+              <button type="button" onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')"
+                class="bg-amber-50 hover:bg-amber-500 text-amber-600 hover:text-white px-2.5 py-1.5 rounded-lg mr-1 transition font-bold text-xs shadow-2xs" title="Edit Pegawai">
+                ✎ Edit
+              </button>
+              <button type="button" onclick="deletePegawai('${p.idKaryawan}')"
+                class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white px-2.5 py-1.5 rounded-lg transition font-bold text-xs shadow-2xs" title="Hapus Pegawai">
+                🗑 Hapus
+              </button>
+            </td>
+          </tr>
+        `).join("");
+      } else {
+        tbPegawai.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada data pegawai yang cocok.</td></tr>`;
+      }
+    }
+
+    // Kontrol Saklar Slip Gaji Global
+    function renderSlipToggleUI(isReleased) {
+      currentSlipReleased = isReleased;
+      const badge = document.getElementById("badgeStatusSlip");
+      const btn = document.getElementById("btnToggleSlip");
+      if (!badge || !btn) return;
+
+      if (isReleased) {
+        badge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-700";
+        badge.textContent = "✅ Tervalidasi & Dirilis (Karyawan Bisa Cek)";
+        btn.className = "bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-md shadow-rose-600/20 transition shrink-0 active:scale-95";
+        btn.textContent = "🔒 Kunci Kembali Slip Gaji";
+      } else {
+        badge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-100 text-rose-700";
+        badge.textContent = "🔒 Terkunci (Proses Hitung / Belum Valid)";
+        btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-md shadow-emerald-600/20 transition shrink-0 active:scale-95";
+        btn.textContent = "🔓 Validasi & Rilis Slip Gaji";
+      }
+    }
+
+    function toggleValidasiSlipGaji() {
+      const targetState = !currentSlipReleased;
+      Swal.fire({
+        title: targetState ? "Rilis Slip Gaji Sekarang?" : "Kunci Akses Slip Gaji?",
+        text: targetState
+          ? "Seluruh karyawan akan dapat melihat rincian slip gaji mereka di aplikasi."
+          : "Karyawan tidak akan bisa melihat slip gaji selama masa perhitungan.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: targetState ? "#059669" : "#e11d48",
+        cancelButtonColor: "#64748b",
+        confirmButtonText: targetState ? "Ya, Rilis Sekarang!" : "Ya, Kunci!",
+        cancelButtonText: "Batal"
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: "Memproses...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          try {
+            const res = await callGAS({ action: "toggleSlipGaji", release: targetState });
+            if (res.status === "success") {
+              renderSlipToggleUI(res.slipReleased);
+              Swal.fire("Berhasil!", res.message, "success");
+            } else {
+              Swal.fire("Gagal", res.message, "error");
+            }
+          } catch (e) {
+            Swal.fire("Error", "Gagal menghubungi server.", "error");
+          }
+        }
+      });
+    }
+
+    // CRUD Pegawai Functions
+    function editPegawai(id, nama, user, pass, jab, out) {
+      document.getElementById("titleFormPegawai").textContent = "Edit Data Pegawai";
+      document.getElementById("oldPegId").value = id;
+      document.getElementById("pegId").value = id;
+      document.getElementById("pegNama").value = nama;
+      document.getElementById("pegUser").value = user;
+      document.getElementById("pegPass").value = pass;
+      document.getElementById("pegJabatan").value = jab;
+      document.getElementById("pegOutlet").value = out;
+      showSection("section-tambah-pegawai");
+    }
+
+    function resetFormPegawai() {
+      document.getElementById("formTambahPegawai").reset();
+      document.getElementById("oldPegId").value = "";
+      document.getElementById("titleFormPegawai").textContent = "Tambah Data Pegawai";
+      showSection("section-data-pegawai", document.getElementById("nav-pegawai"));
+    }
+
+    function deletePegawai(idKaryawan) {
+      Swal.fire({
+        title: "Hapus Pegawai?",
+        text: `Pegawai dengan ID ${idKaryawan} akan dihapus permanen dari Spreadsheet!`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e11d48",
+        cancelButtonColor: "#64748b",
+        confirmButtonText: "Ya, Hapus!",
+        cancelButtonText: "Batal"
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: "Menghapus...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          try {
+            const res = await callGAS({ action: "deleteKaryawan", idKaryawan });
+            if (res.status === "success") {
+              Swal.fire("Terhapus!", res.message, "success");
+              loadAdminData(false);
+            } else {
+              Swal.fire("Gagal", res.message, "error");
+            }
+          } catch (e) {
+            Swal.fire("Error", "Gagal menghubungi server.", "error");
+          }
+        }
+      });
+    }
+
+    async function submitPegawai() {
+      const oldId = document.getElementById("oldPegId").value;
+      const id = document.getElementById("pegId").value;
+      const nama = document.getElementById("pegNama").value;
+      const user = document.getElementById("pegUser").value;
+      const pass = document.getElementById("pegPass").value;
+      const jab = document.getElementById("pegJabatan").value;
+      const out = document.getElementById("pegOutlet").value;
+
+      if (!id || !nama || !user || !pass || !jab || !out) {
+        return Swal.fire("Perhatian", "Semua kolom wajib diisi!", "warning");
+      }
+
+      const btn = document.getElementById("btnSimpanPegawai");
+      btn.textContent = "Menyimpan...";
+      btn.disabled = true;
+
+      const actionType = oldId ? "updateKaryawan" : "addKaryawan";
+
+      try {
+        const res = await callGAS({
+          action: actionType, oldIdKaryawan: oldId,
+          idKaryawan: id, nama, username: user, password: pass, jabatan: jab, idOutlet: out
+        });
+
+        if (res.status === "success") {
+          Swal.fire("Berhasil!", res.message, "success");
+          resetFormPegawai();
+          loadAdminData(false);
+        } else {
+          Swal.fire("Gagal!", res.message, "error");
+        }
+      } catch (e) {
+        Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error");
+      } finally {
+        btn.textContent = "✓ Simpan Data Pegawai";
+        btn.disabled = false;
+      }
+    }
+
+    // Download & Import Excel (SheetJS)
+    function downloadTemplate() {
+      const ws = XLSX.utils.aoa_to_sheet([
+        ["ID_Karyawan", "Username", "Password", "Nama", "Jabatan", "ID_Outlet"],
+        ["EMP02", "budi", "123456", "Budi Santoso", "Staff Operasional", "OUT01"]
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Template Karyawan");
+      XLSX.writeFile(wb, "Template_Import_Karyawan.xlsx");
+    }
+
+    async function submitImport() {
+      const fileInput = document.getElementById("fileImportExcel");
+      if (!fileInput.files.length) return Swal.fire("Peringatan", "Pilih file Excel terlebih dahulu!", "warning");
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        if (json.length < 2) return Swal.fire("Gagal", "File Excel kosong atau tidak ada data.", "error");
+
+        const headers = json[0];
+        if (headers[0] !== "ID_Karyawan" || headers[1] !== "Username" || headers[2] !== "Password" || headers[3] !== "Nama" || headers[4] !== "Jabatan" || headers[5] !== "ID_Outlet") {
+          return Swal.fire("Format Salah!", "Format kolom Excel tidak sesuai. Gunakan file Download Sample Template Excel!", "error");
+        }
+
+        const payloadData = [];
+        for (let i = 1; i < json.length; i++) {
+          if (json[i].length > 0 && json[i][0]) {
+            payloadData.push({
+              idKaryawan: String(json[i][0] || ""),
+              username: String(json[i][1] || ""),
+              password: String(json[i][2] || ""),
+              nama: String(json[i][3] || ""),
+              jabatan: String(json[i][4] || ""),
+              idOutlet: String(json[i][5] || "")
+            });
+          }
+        }
+
+        Swal.fire({ title: "Mengimpor Data...", text: "Mohon tunggu sebentar", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+          const res = await callGAS({ action: "importKaryawan", payload: payloadData });
+          if (res.status === "success") {
+            Swal.fire("Berhasil!", res.message, "success");
+            toggleModal("modalImport");
+            document.getElementById("fileImportExcel").value = "";
+            document.getElementById("fileNameDisplay").textContent = "Klik untuk memilih file Excel (.xlsx)";
+            loadAdminData(false);
+          } else {
+            Swal.fire("Gagal", res.message, "error");
+          }
+        } catch (err) {
+          Swal.fire("Error", "Gagal menghubungi server", "error");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function logoutAdmin() {
+      localStorage.removeItem("admin_session");
+      location.reload();
+    }
+    // ==================== FUNGSI SINKRONISASI SHEET MASTER (KOLOM A - L) ====================
+
+    async function loadMasterLaporan(showNotif = false) {
+      const tbody = document.getElementById("tableMasterBody");
+      if (tbody && tbody.children.length <= 1) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-12 text-center text-slate-500 font-bold animate-pulse">⏳ Sedang menyinkronkan data Kolom A - L dari Sheet Master...</td></tr>`;
+      }
+
+      try {
+        const res = await callGAS({ action: "getMasterLaporan" });
+        if (res.status === "success") {
+          renderMasterLaporanUI(res);
+          if (showNotif) {
+            Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Sheet Master diperbarui", showConfirmButton: false, timer: 1800 });
+          }
+        } else {
+          Swal.fire("Gagal", res.message, "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Gagal memuat data Sheet Master", "error");
+      }
+    }
+
+    function renderMasterLaporanUI(res) {
+      // 1. Render Dropdown A1 (Bulan) & B1 (Periode) beserta C1-D1
+      const f = res.filter || {};
+      const selBulan = document.getElementById("masterDropBulan");
+      const selPeriode = document.getElementById("masterDropPeriode");
+
+      if (selBulan && f.bulanOptions) {
+        selBulan.innerHTML = f.bulanOptions.map(b => `<option value="${b}" ${String(b) === String(f.bulan) ? "selected" : ""}>${b}</option>`).join("");
+      }
+      if (selPeriode && f.periodeOptions) {
+        selPeriode.innerHTML = f.periodeOptions.map(p => `<option value="${p}" ${String(p) === String(f.periode) ? "selected" : ""}>${p}</option>`).join("");
+      }
+
+      document.getElementById("masterTglAwal").textContent = f.tglAwal || "-";
+      document.getElementById("masterTglAkhir").textContent = f.tglAkhir || "-";
+
+      // 2. Render Baris 1 s/d Baris Terakhir (Kolom A - L)
+      const tbody = document.getElementById("tableMasterBody");
+      const rows = res.rows || [];
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-8 text-center text-slate-400">Tidak ada data di Sheet Master.</td></tr>`;
+        return;
+      }
+
+      const colLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+      let html = `
+        <tr class="bg-slate-900 text-slate-400 text-[10px] font-extrabold text-center sticky top-0 z-10">
+          ${colLetters.map(l => `<th class="py-1.5 px-3 border-r border-slate-800">${l}</th>`).join("")}
+        </tr>
+      `;
+
+      rows.forEach(r => {
+        const c = r.cells; // Array 12 kolom (A - L)
+
+        // Lewati baris kosong pemisah agar tetap rapi
+        if (r.rowType === "spacer_row") {
+          html += `<tr class="h-3 bg-slate-100/70"><td colspan="12"></td></tr>`;
+          return;
+        }
+
+        // Baris Judul "LAPORAN DETAIL HARIAN"
+        if (r.rowType === "title_row") {
+          html += `
+            <tr class="bg-slate-800 text-white font-extrabold text-sm">
+              <td colspan="12" class="py-3 px-4 text-center tracking-wider uppercase">${c.join(" ").trim()}</td>
+            </tr>
+          `;
+          return;
+        }
+
+        // Baris Ringkasan Nama Karyawan (Contoh: Baris 3 & Baris 25 - M ARIF DARMAWAN)
+        if (r.rowType === "employee_summary") {
+          html += `
+            <tr class="bg-indigo-50/90 border-y-2 border-indigo-200 font-extrabold text-slate-900 text-xs">
+              <td colspan="2" class="py-3 px-4 text-indigo-950 text-sm">👤 ${c[0]}</td>
+              <td class="py-3 px-3 text-center">${c[2]}</td>
+              <td class="py-3 px-3 text-center text-rose-700">${c[3]}</td>
+              <td class="py-3 px-3 text-center">${c[4]}</td>
+              <td class="py-3 px-3 text-center">${c[5]}</td>
+              <td class="py-3 px-3 text-center">${c[6]}</td>
+              <td class="py-3 px-3 text-center">${c[7]}</td>
+              <td class="py-3 px-3 text-center">${c[8]}</td>
+              <td class="py-3 px-3 text-center bg-amber-100/80">${c[9]}</td>
+              <td class="py-3 px-3 text-center bg-amber-100/80">${c[10]}</td>
+              <td class="py-3 px-3 text-center">${c[11]}</td>
+            </tr>
+          `;
+          return;
+        }
+
+        // Baris Header Tabel (Tanggal | Jam Masuk | ... | Overtime 100% | Overtime 50% | Keterangan)
+        if (r.rowType === "header_row") {
+          html += `
+            <tr class="bg-slate-100 text-slate-700 font-extrabold text-[11px] uppercase border-y border-slate-300">
+              ${c.map((val, idx) => {
+                const isYellowHeader = (idx === 9 || idx === 10);
+                return `<th class="py-2.5 px-3 ${isYellowHeader ? 'bg-amber-300 text-slate-900 text-center' : ''} ${idx === 11 ? 'text-center' : ''}">${val}</th>`;
+              }).join("")}
+            </tr>
+          `;
+          return;
+        }
+
+        // Baris 1 (Baris Filter di Spreadsheet) atau Baris Data Harian
+        html += `<tr class="hover:bg-slate-50 transition font-semibold text-slate-700">`;
+        for (let idx = 0; idx < 12; idx++) {
+          const val = c[idx];
+          const isOvertimeCol = (idx === 9 || idx === 10); // Kolom J & K (Warna Kuning sesuai Spreadsheet)
+          const bgClass = isOvertimeCol ? "bg-yellow-200/70 font-extrabold text-slate-900 text-center" : "";
+
+          // Jika Kolom L (index 11) dan bertipe Checkbox
+          if (idx === 11 && r.isCheckbox) {
+            html += `
+              <td class="py-2 px-3 text-center bg-slate-50/50 border-l border-slate-200">
+                <input type="checkbox" ${r.checked ? "checked" : ""} 
+                  onchange="toggleMasterCheckbox(${r.rowNumber}, this.checked)"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer transition transform hover:scale-110" 
+                  title="Baris ${r.rowNumber} Kolom L" />
+              </td>
+            `;
+          } else {
+            const alignClass = (idx >= 1 && idx <= 10) ? "text-center" : "";
+            html += `<td class="py-2 px-3 border-r border-slate-100 ${bgClass} ${alignClass}">${val}</td>`;
+          }
+        }
+        html += `</tr>`;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    // Saat Admin Mengubah Dropdown A1 (Bulan) atau B1 (Periode)
+    async function onChangeMasterFilter() {
+      const bulan = document.getElementById("masterDropBulan").value;
+      const periode = document.getElementById("masterDropPeriode").value;
+
+      Swal.fire({
+        title: "Mengubah Periode...",
+        text: `Menyinkronkan A1 (${bulan}) & B1 (Periode ${periode}) di Sheet Master`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        const res = await callGAS({ action: "updateMasterFilter", bulan: bulan, periode: periode });
+        Swal.close();
+        if (res.status === "success") {
+          renderMasterLaporanUI(res);
+        } else {
+          Swal.fire("Gagal", res.message, "error");
+        }
+      } catch (e) {
+        Swal.close();
+        Swal.fire("Error", "Gagal menghubungi server", "error");
+      }
+    }
+
+    // Saat Admin Mencentang / Menghapus Centang di Kolom L
+    async function toggleMasterCheckbox(rowNumber, isChecked) {
+      try {
+        const res = await callGAS({
+          action: "updateMasterCheckbox",
+          rowNumber: rowNumber,
+          checked: isChecked
+        });
+        if (res.status === "success") {
+          // Render ulang tabel agar perubahan angka rumus Overtime (Kolom J & K) langsung terlihat
+          renderMasterLaporanUI(res);
+          Swal.fire({
+            toast: true,
+            position: "bottom-end",
+            icon: "success",
+            title: `Baris ${rowNumber} (Kolom L) diperbarui`,
+            showConfirmButton: false,
+            timer: 1500
+          });
+        } else {
+          Swal.fire("Gagal", res.message, "error");
+          loadMasterLaporan(false);
+        }
+      } catch (e) {
+        Swal.fire("Error", "Gagal memperbarui centang di Spreadsheet", "error");
+        loadMasterLaporan(false);
+      }
+    }
+
+    // ==================== LOGIKA MASTER JADWAL MASUK & APPROVAL REVISI (ADMIN) ====================
+    let masterJadwalState = { dates: [], pegawai: [], shifts: [], periodeKey: "" };
+
+    // Set default bulan & periode saat pertama kali dibuka
+    (function initDefaultPeriodeFilter() {
+      const now = new Date();
+      const bEl = document.getElementById("jadwalBulan");
+      const tEl = document.getElementById("jadwalTahun");
+      const pEl = document.getElementById("jadwalPeriode");
+      if (bEl) bEl.value = String(now.getMonth() + 1);
+      if (tEl) tEl.value = String(now.getFullYear());
+      if (pEl) pEl.value = now.getDate() <= 15 ? "1" : "2";
+    })();
+
+   async function loadMasterJadwalPeriode() {
+      const bulanEl = document.getElementById("jadwalBulan");
+      const tahunEl = document.getElementById("jadwalTahun");
+      const periodeEl = document.getElementById("jadwalPeriode");
+      const tbody = document.getElementById("tbodyMasterJadwal");
+      if (!tbody) return;
+
+      const bulan = bulanEl ? bulanEl.value : String(new Date().getMonth() + 1);
+      const tahun = tahunEl ? tahunEl.value : String(new Date().getFullYear());
+      const periode = periodeEl ? periodeEl.value : "1";
+
+      tbody.innerHTML = `<tr><td colspan="18" class="py-10 text-center text-slate-500 font-bold animate-pulse">⏳ Sedang mengambil daftar karyawan & jadwal Periode ${periode} dari Spreadsheet...</td></tr>`;
+
+      try {
+        const res = await callGAS({ action: "getMasterJadwal", bulan, tahun, periode });
+        if (res && res.status === "success") {
+          masterJadwalState = res;
+          updateBadgePendingRevisi(res.pendingRevisiCount || 0);
+          renderMasterJadwalTable(res);
+        } else {
+          const msg = (res && res.message) ? res.message : "Respon tidak dikenali";
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="18" class="py-8 text-center text-rose-600 font-bold">
+                ⚠️ Gagal memuat tabel: ${msg}<br>
+                <span class="text-xs text-slate-500 font-normal">Pastikan rute "getMasterJadwal" sudah dipasang di doPost(e) pada Code.gs dan sudah di-Deploy (New Version).</span>
+              </td>
+            </tr>`;
+        }
+      } catch (e) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="18" class="py-8 text-center text-rose-600 font-bold">
+              ⚠️ Koneksi ke Code.gs gagal: ${e.message || e}
+            </td>
+          </tr>`;
+      }
+    }
+
+    function renderMasterJadwalTable(res) {
+      const thead = document.getElementById("theadMasterJadwal");
+      const tbody = document.getElementById("tbodyMasterJadwal");
+
+      // Header Kolom: Nama Karyawan | Set Cepat 1 Baris | Tgl 1 .. Tgl 15
+      let headHtml = `<tr>
+        <th class="py-3 px-4 sticky left-0 bg-slate-900 z-20 border-r border-slate-800">Nama Karyawan</th>
+        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700">⚡ Set 1 Periode</th>`;
+      res.dates.forEach(d => {
+        const tglNum = d.split("-")[2];
+        headHtml += `<th class="py-3 px-2.5 text-center border-r border-slate-800 min-w-[92px]">Tgl ${tglNum}</th>`;
+      });
+      headHtml += `</tr>`;
+      thead.innerHTML = headHtml;
+
+      if (!res.pegawai || res.pegawai.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="18" class="py-8 text-center text-slate-400">Belum ada data karyawan.</td></tr>`;
+        return;
+      }
+
+      const shiftOptionsHtml = res.shifts.map(s =>
+        `<option value="${s.kode}">${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`
+      ).join("");
+
+      tbody.innerHTML = res.pegawai.map(p => {
+        const cellsHtml = res.dates.map(tgl => {
+          const key = `${p.idKaryawan}_${tgl}`;
+          const saved = res.jadwalMap[key];
+          const selectedKode = saved ? saved.kodeShift : (res.shifts[0] ? res.shifts[0].kode : "");
+
+          return `
+            <td class="p-1.5 border-r border-slate-100 text-center">
+              <select data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}"
+                class="jadwal-cell-select emp-row-${p.idKaryawan} w-full bg-slate-50 hover:bg-white border border-slate-200 rounded-lg px-1.5 py-1.5 text-[11px] font-extrabold text-slate-800 focus:border-red-500 focus:outline-none">
+                ${res.shifts.map(s => `<option value="${s.kode}" ${s.kode === selectedKode ? "selected" : ""}>${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
+              </select>
+            </td>
+          `;
+        }).join("");
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-2.5 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200">
+              ${p.nama}
+              <span class="block text-[10px] font-semibold text-slate-400">${p.idKaryawan}</span>
+            </td>
+            <td class="p-1.5 bg-amber-50/60 border-r border-slate-200 text-center">
+              <select onchange="applyQuickRowJadwal('${p.idKaryawan}', this.value)" class="bg-white border border-amber-300 rounded-lg px-2 py-1.5 text-[11px] font-extrabold text-amber-900">
+                <option value="">-- Terapkan Semua --</option>
+                ${shiftOptionsHtml}
+              </select>
+            </td>
+            ${cellsHtml}
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function applyQuickRowJadwal(idKaryawan, kodeShift) {
+      if (!kodeShift) return;
+      document.querySelectorAll(`.emp-row-${CSS.escape(idKaryawan)}`).forEach(sel => {
+        sel.value = kodeShift;
+      });
+    }
+
+    async function saveMasterJadwalPeriode() {
+      const selects = document.querySelectorAll(".jadwal-cell-select");
+      if (selects.length === 0) return;
+
+      const shiftLookup = {};
+      masterJadwalState.shifts.forEach(s => { shiftLookup[s.kode] = s; });
+
+      const items = [];
+      selects.forEach(sel => {
+        const kode = sel.value;
+        const sh = shiftLookup[kode] || { kode: kode, nama: kode, jamMasuk: "08:00:00", jamPulang: "17:00:00" };
+        items.push({
+          idKaryawan: sel.getAttribute("data-emp"),
+          nama: sel.getAttribute("data-nama"),
+          tanggal: sel.getAttribute("data-date"),
+          kodeShift: sh.kode,
+          namaShift: sh.nama,
+          jamMasuk: sh.jamMasuk,
+          jamPulang: sh.jamPulang
+        });
+      });
+
+      Swal.fire({
+        title: "Simpan & Rilis Jadwal?",
+        text: `Sebanyak ${items.length} jadwal harian pada periode ini akan dikunci untuk absensi dan report pekerjaan karyawan.`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#059669",
+        confirmButtonText: "Ya, Rilis Sekarang!",
+        cancelButtonText: "Batal"
+      }).then(async (r) => {
+        if (!r.isConfirmed) return;
+        Swal.fire({ title: "Menyimpan Jadwal...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+          const res = await callGAS({
+            action: "saveMasterJadwal",
+            periodeKey: masterJadwalState.periodeKey,
+            items: items
+          });
+          if (res.status === "success") {
+            Swal.fire("Berhasil!", res.message, "success");
+          } else {
+            Swal.fire("Gagal", res.message, "error");
+          }
+        } catch (e) {
+          Swal.fire("Error", "Gagal menyimpan jadwal ke server.", "error");
+        }
+      });
+    }
+
+    // ==================== APPROVAL REVISI JAM MASUK ====================
+    function updateBadgePendingRevisi(count) {
+      const badge = document.getElementById("badgePendingRevisi");
+      if (!badge) return;
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+    }
+
+    async function loadAdminRevisiJadwal() {
+      const tbody = document.getElementById("tbodyApproveRevisi");
+      tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Memuat pengajuan revisi jam masuk...</td></tr>`;
+
+      try {
+        const res = await callGAS({ action: "getRevisiJadwal" });
+        if (res.status === "success") {
+          const list = res.data || [];
+          const pendingCount = list.filter(x => x.status === "Menunggu").length;
+          updateBadgePendingRevisi(pendingCount);
+
+          if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Belum ada pengajuan revisi jam masuk.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = list.map(r => {
+            const badgeClass = r.status === "Disetujui"
+              ? "bg-emerald-100 text-emerald-700"
+              : (r.status === "Ditolak" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-800");
+
+            const actionBtns = r.status === "Menunggu"
+              ? `<div class="flex items-center justify-center gap-1.5">
+                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Disetujui')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-2xs transition">✓ Setujui</button>
+                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Ditolak')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-2xs transition">✕ Tolak</button>
+                 </div>`
+              : `<span class="text-[11px] text-slate-400">Oleh: ${r.diprosesOleh}</span>`;
+
+            return `
+              <tr class="hover:bg-slate-50 transition">
+                <td class="py-3.5 px-4 text-slate-400 text-[11px]">${r.timestamp}</td>
+                <td class="py-3.5 px-4 font-extrabold text-slate-800">${r.nama}</td>
+                <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-extrabold">${r.tanggalTarget}</span></td>
+                <td class="py-3.5 px-4 text-slate-500">${r.shiftAwal} (${r.jamMasukAwal})</td>
+                <td class="py-3.5 px-4 font-extrabold text-emerald-700">${r.shiftBaru} (${r.jamMasukBaru} - ${r.jamPulangBaru})</td>
+                <td class="py-3.5 px-4 max-w-xs truncate" title="${r.alasan}">${r.alasan}</td>
+                <td class="py-3.5 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${r.status}</span></td>
+                <td class="py-3.5 px-4 text-center">${actionBtns}</td>
+              </tr>
+            `;
+          }).join("");
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-rose-500">Gagal memuat data revisi.</td></tr>`;
+      }
+    }
+
+    function prosesApproveRevisi(idRevisi, keputusan) {
+      Swal.fire({
+        title: `${keputusan} Revisi Jam Masuk?`,
+        text: keputusan === "Disetujui"
+          ? "Jadwal kerja karyawan pada tanggal tersebut akan langsung diperbarui secara otomatis."
+          : "Pengajuan perubahan jam masuk ini akan ditolak.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: keputusan === "Disetujui" ? "#059669" : "#e11d48",
+        confirmButtonText: `Ya, ${keputusan}!`,
+        cancelButtonText: "Batal"
+      }).then(async (result) => {
+        if (!result.isConfirmed) return;
+        Swal.fire({ title: "Memproses...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+          const adminSession = JSON.parse(localStorage.getItem("admin_session") || "{}");
+          const res = await callGAS({
+            action: "approveRevisiJadwal",
+            idRevisi: idRevisi,
+            keputusan: keputusan,
+            adminName: adminSession.nama || "Admin"
+          });
+          if (res.status === "success") {
+            Swal.fire("Selesai!", res.message, "success");
+            loadAdminRevisiJadwal();
+          } else {
+            Swal.fire("Gagal", res.message, "error");
+          }
+        } catch (e) {
+          Swal.fire("Error", "Gagal menghubungi server.", "error");
+        }
+      });
+    }
+  </script>
+</body>
+</html>
