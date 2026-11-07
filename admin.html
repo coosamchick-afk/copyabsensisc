@@ -1469,11 +1469,11 @@
       const outlets = res.outlets || [];
 
       let headHtml = `<tr>
-        <th class="py-3 px-4 sticky left-0 bg-slate-900 z-20 border-r border-slate-800 min-w-[180px]">Nama Karyawan</th>
-        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700 min-w-[170px]">⚡ Set Cepat (Baris)</th>`;
+        <th class="py-3 px-4 sticky left-0 bg-slate-900 z-20 border-r border-slate-800" style="min-width: 180px;">Nama Karyawan</th>
+        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700" style="min-width: 170px;">⚡ Set Cepat (Baris)</th>`;
       dates.forEach(d => {
         const tglNum = d.split("-")[2];
-        headHtml += `<th class="py-3 px-2 text-center border-r border-slate-800 min-w-[145px]">Tgl ${tglNum}</th>`;
+        headHtml += `<th class="py-3 px-2 text-center border-r border-slate-800" style="min-width: 155px;">Tgl ${tglNum}</th>`;
       });
       headHtml += `</tr>`;
       thead.innerHTML = headHtml;
@@ -1495,20 +1495,20 @@
           const selOutlet = (saved && saved.idOutlet) ? saved.idOutlet : defaultOut;
 
           return `
-            <td class="p-1.5 border-r border-slate-100 align-top bg-white hover:bg-slate-50/80 transition">
-              <!-- Mini-Card Rapi per Sel Tanggal -->
-              <div class="space-y-1.5 jadwal-cell-box p-2 rounded-xl border border-slate-200/80 bg-slate-50/70 shadow-2xs min-w-[135px]" data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}">
+            <td class="p-1.5 border-r border-slate-100 align-top bg-white hover:bg-slate-50 transition" style="min-width: 155px;">
+              <!-- Mini-Card dengan Inline Flex untuk Mencegah Bentrok CSS -->
+              <div class="jadwal-cell-box" data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}" style="display: flex; flex-direction: column; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; width: 100%;">
                 <!-- Baris Shift -->
-                <div class="flex items-center gap-1">
-                  <span class="text-[10px]" title="Jam Shift">⏰</span>
-                  <select class="jadwal-shift-select emp-shift-${p.idKaryawan} w-full bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-[10px] font-extrabold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                <div style="display: flex; align-items: center; gap: 4px; width: 100%;">
+                  <span style="font-size: 10px;" title="Jam Shift">⏰</span>
+                  <select class="jadwal-shift-select emp-shift-${p.idKaryawan}" style="width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 800; color: #1e293b;">
                     ${shifts.map(s => `<option value="${s.kode}" ${s.kode === selShift ? "selected" : ""}>${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
                   </select>
                 </div>
                 <!-- Baris Outlet -->
-                <div class="flex items-center gap-1">
-                  <span class="text-[10px]" title="Lokasi Outlet">📍</span>
-                  <select class="jadwal-outlet-select emp-outlet-${p.idKaryawan} w-full bg-red-50/40 border border-red-200/80 rounded-lg px-1.5 py-1 text-[10px] font-bold text-red-700 focus:border-red-500 focus:outline-none">
+                <div style="display: flex; align-items: center; gap: 4px; width: 100%;">
+                  <span style="font-size: 10px;" title="Lokasi Outlet">📍</span>
+                  <select class="jadwal-outlet-select emp-outlet-${p.idKaryawan}" style="width: 100%; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 700; color: #b91c1c;">
                     ${outlets.map(o => `<option value="${o.idOutlet}" ${o.idOutlet === selOutlet ? "selected" : ""}>${o.namaOutlet}</option>`).join("")}
                   </select>
                 </div>
@@ -1519,18 +1519,20 @@
 
         return `
           <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-3 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200 shadow-xs min-w-[180px]">
-              <div class="text-xs">${p.nama}</div>
-              <span class="text-[10px] font-semibold text-slate-400">${p.idKaryawan}</span>
+            <td class="py-3 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200" style="min-width: 180px;">
+              <div style="font-size: 12px;">${p.nama}</div>
+              <span style="font-size: 10px; font-weight: 600; color: #94a3b8;">${p.idKaryawan}</span>
             </td>
-            <td class="p-2 bg-amber-50/50 border-r border-slate-200 space-y-1.5 align-middle min-w-[170px]">
-              <div class="text-[9px] font-extrabold text-amber-800 uppercase tracking-wider mb-0.5">⚡ Set 1 Baris:</div>
-              <select onchange="applyQuickRowShift('${p.idKaryawan}', this.value)" class="w-full bg-white border border-amber-300 rounded-lg px-2 py-1.5 text-[10px] font-extrabold text-amber-900 focus:outline-none">
-                <option value="">-- Pilih Shift --</option>${shiftOpts}
-              </select>
-              <select onchange="applyQuickRowOutlet('${p.idKaryawan}', this.value)" class="w-full bg-white border border-amber-300 rounded-lg px-2 py-1.5 text-[10px] font-bold text-amber-900 focus:outline-none">
-                <option value="">-- Pilih Outlet --</option>${outletOpts}
-              </select>
+            <td class="p-2 bg-amber-50/50 border-r border-slate-200 align-middle" style="min-width: 170px;">
+              <div style="font-size: 9px; font-weight: 800; color: #92400e; text-transform: uppercase; margin-bottom: 4px;">⚡ Set 1 Baris:</div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <select onchange="applyQuickRowShift('${p.idKaryawan}', this.value)" style="width: 100%; background: #ffffff; border: 1px solid #fde68a; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 800; color: #78350f;">
+                  <option value="">-- Pilih Shift --</option>${shiftOpts}
+                </select>
+                <select onchange="applyQuickRowOutlet('${p.idKaryawan}', this.value)" style="width: 100%; background: #ffffff; border: 1px solid #fde68a; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 700; color: #78350f;">
+                  <option value="">-- Pilih Outlet --</option>${outletOpts}
+                </select>
+              </div>
             </td>
             ${cellsHtml}
           </tr>
