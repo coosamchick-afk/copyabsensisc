@@ -2192,36 +2192,42 @@ async function submitAttendance(tipe) {
     async function openReportKerjaModal() {
       if (!currentUser) return showToast("Silakan login terlebih dahulu!", "error");
 
-      initTime24Picker();
+      // Inisialisasi picker jam jika ada
+      if (typeof initTime24Picker === "function") initTime24Picker();
 
       // Reset tampilan ke Form Input
-      document.getElementById("formReportKerjaBox").classList.remove("hidden");
-      document.getElementById("suksesReportKerjaBox").classList.add("hidden");
-      document.getElementById("rkMultiOutletPanel").classList.add("hidden");
+      const formBox = document.getElementById("formReportKerjaBox");
+      const suksesBox = document.getElementById("suksesReportKerjaBox");
+      const outletPanel = document.getElementById("rkMultiOutletPanel");
+      
+      if (formBox) formBox.classList.remove("hidden");
+      if (suksesBox) suksesBox.classList.add("hidden");
+      if (outletPanel) outletPanel.classList.add("hidden");
 
       // Isi otomatis Hari/Tanggal & Nama Karyawan
-      document.getElementById("rkHariTanggal").value = getHariTanggalSekarangIndo();
-      document.getElementById("rkNamaKaryawan").value = currentUser.nama || "";
+      const elHari = document.getElementById("rkHariTanggal");
+      const elNama = document.getElementById("rkNamaKaryawan");
+      if (elHari) elHari.value = getHariTanggalSekarangIndo();
+      if (elNama) elNama.value = currentUser.nama || "";
 
-      // Reset Poin Pekerjaan, Masukan, dan Plan Besok menjadi masing-masing 1 baris awal
-      document.getElementById("rkPoinKerjaContainer").innerHTML = "";
-      addPoinField("rkPoinKerjaContainer", "rk-poin-kerja", "Tulis detail poin pekerjaan...");
+      // Reset Poin Pekerjaan, Masukan, dan Plan Besok
+      const cKerja = document.getElementById("rkPoinKerjaContainer");
+      const cMasukan = document.getElementById("rkPoinMasukanContainer");
+      const cPlan = document.getElementById("rkPoinPlanContainer");
 
-      document.getElementById("rkPoinMasukanContainer").innerHTML = "";
-      addPoinField("rkPoinMasukanContainer", "rk-poin-masukan", "Tulis masukan untuk divisi lain (ketik - jika tidak ada)...");
-
-      document.getElementById("rkPoinPlanContainer").innerHTML = "";
-      addPoinField("rkPoinPlanContainer", "rk-poin-plan", "Tulis rencana pekerjaan besok...");
+      if (cKerja) { cKerja.innerHTML = ""; addPoinField("rkPoinKerjaContainer", "rk-poin-kerja", "Tulis detail poin pekerjaan..."); }
+      if (cMasukan) { cMasukan.innerHTML = ""; addPoinField("rkPoinMasukanContainer", "rk-poin-masukan", "Tulis masukan untuk divisi lain (ketik - jika tidak ada)..."); }
+      if (cPlan) { cPlan.innerHTML = ""; addPoinField("rkPoinPlanContainer", "rk-poin-plan", "Tulis rencana pekerjaan besok..."); }
 
       // Tampilkan modal
       const modal = document.getElementById("reportKerjaModal");
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
 
-      // Muat daftar outlet dinamis dari Spreadsheet jika belum ada di memori
       await ensureDaftarOutletLoaded();
       renderOutletSelectors();
-      applyLockedScheduleUI(dashData);
     }
 
     function closeReportKerjaModal() {
@@ -2326,23 +2332,31 @@ async function submitAttendance(tipe) {
 
     // Kirim Report Pekerjaan ke Spreadsheet & Buat Format WhatsApp
     async function submitReportKerja() {
-      const hariTanggal = document.getElementById("rkHariTanggal").value;
-      const nama = document.getElementById("rkNamaKaryawan").value;
+      const hariTanggalEl = document.getElementById("rkHariTanggal");
+      const namaEl = document.getElementById("rkNamaKaryawan");
+      
+      const hariTanggal = hariTanggalEl ? hariTanggalEl.value : "";
+      const nama = namaEl ? namaEl.value : (currentUser ? currentUser.nama : "");
+      
       const tempatBekerja = Array.from(document.querySelectorAll(".rk-outlet-checkbox:checked")).map(cb => cb.value);
+      const poinPekerjaan = Array.from(document.querySelectorAll(".rk-poin-kerja")).map(el => el.value.trim()).filter(v => v !== "");
+      const poinMasukan = Array.from(document.querySelectorAll(".rk-poin-masukan")).map(el => el.value.trim()).filter(v => v !== "");
 
-      const poinPekerjaan = Array.from(document.querySelectorAll(".rk-poin-kerja"))
-        .map(el => el.value.trim())
-        .filter(v => v !== "");
+      // Ambil nilai jam plan dengan aman (mendukung dropdown atau input manual)
+      const elJam = document.getElementById("rkPlanJam");
+      const elMenit = document.getElementById("rkPlanMenit");
+      const elJamOtomatis = document.getElementById("rkPlanJamOtomatis");
 
-      const poinMasukan = Array.from(document.querySelectorAll(".rk-poin-masukan"))
-        .map(el => el.value.trim())
-        .filter(v => v !== "");
+      let planJamMasuk = "08:00";
+      if (elJam && elMenit) {
+        planJamMasuk = `${elJam.value || "08"}:${elMenit.value || "00"}ール`;
+      } else if (elJamOtomatis) {
+        planJamMasuk = elJamOtomatis.value;
+      }
 
-      const planJamMasuk = `${document.getElementById("rkPlanJam").value}:${document.getElementById("rkPlanMenit").value}`;
-      const planOutlet = document.getElementById("rkPlanOutlet").value;
-      const planPekerjaan = Array.from(document.querySelectorAll(".rk-poin-plan"))
-        .map(el => el.value.trim())
-        .filter(v => v !== "");
+      const planOutletEl = document.getElementById("rkPlanOutlet");
+      const planOutlet = planOutletEl ? planOutletEl.value : "";
+      const planPekerjaan = Array.from(document.querySelectorAll(".rk-poin-plan")).map(el => el.value.trim()).filter(v => v !== "");
 
       // Validasi isian wajib
       if (tempatBekerja.length === 0) return showToast("Pilih minimal 1 Outlet tempat bekerja!", "error");
@@ -2353,14 +2367,16 @@ async function submitAttendance(tipe) {
       const masukanFinal = poinMasukan.length > 0 ? poinMasukan : ["-"];
 
       const btn = document.getElementById("btnSubmitReportKerja");
-      const originalText = btn.innerHTML;
-      btn.textContent = "Menyimpan ke Spreadsheet...";
-      btn.disabled = true;
+      const originalText = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.textContent = "Menyimpan ke Spreadsheet...";
+        btn.disabled = true;
+      }
 
       try {
         const res = await callGAS({
           action: "simpanReportKerja",
-          idKaryawan: currentUser.idKaryawan,
+          idKaryawan: currentUser ? currentUser.idKaryawan : "",
           hariTanggal: hariTanggal,
           nama: nama,
           tempatBekerja: tempatBekerja,
@@ -2371,8 +2387,7 @@ async function submitAttendance(tipe) {
           planPekerjaan: planPekerjaan
         });
 
-        if (res.status === "success") {
-          // Susun format teks WhatsApp sesuai permintaan
+        if (res && res.status === "success") {
           let teksWA = `بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n\n`;
           teksWA += `*REPORT PEKERJAAN HARI INI*\n`;
           teksWA += `📅 Hari/Tanggal : ${hariTanggal}\n`;
@@ -2380,40 +2395,39 @@ async function submitAttendance(tipe) {
           teksWA += `📍 Tempat Bekerja : ${tempatBekerja.join(", ")}\n\n`;
 
           teksWA += `*🛠️ Report Pekerjaan :*\n`;
-          poinPekerjaan.forEach((p, i) => {
-            teksWA += `${i + 1}. ${p}\n`;
-          });
+          poinPekerjaan.forEach((p, i) => { teksWA += `${i + 1}. ${p}\n`; });
 
           teksWA += `\n*💡 Masukan Untuk Divisi Lain :*\n`;
-          masukanFinal.forEach((m, i) => {
-            teksWA += `${i + 1}. ${m}\n`;
-          });
+          masukanFinal.forEach((m, i) => { teksWA += `${i + 1}. ${m}\n`; });
 
           teksWA += `\n*🚀 Planning Pekerjaan Besok :*\n`;
           teksWA += `• Plan Masuk : ${planJamMasuk} WIB\n`;
           teksWA += `• Lokasi Outlet : ${planOutlet}\n`;
           teksWA += `• Plan Pekerjaan :\n`;
-          planPekerjaan.forEach((pl, i) => {
-            teksWA += `  ${i + 1}. ${pl}\n`;
-          });
+          planPekerjaan.forEach((pl, i) => { teksWA += `  ${i + 1}. ${pl}\n`; });
 
           teksWA += `\nTerimakasih`;
 
           lastReportKerjaWAText = teksWA;
-          document.getElementById("rkPreviewWaText").textContent = teksWA;
+          const previewEl = document.getElementById("rkPreviewWaText");
+          if (previewEl) previewEl.textContent = teksWA;
 
-          // Tampilkan Kartu Sukses & Tombol Share WA
-          document.getElementById("formReportKerjaBox").classList.add("hidden");
-          document.getElementById("suksesReportKerjaBox").classList.remove("hidden");
+          const formBox = document.getElementById("formReportKerjaBox");
+          const suksesBox = document.getElementById("suksesReportKerjaBox");
+          if (formBox) formBox.classList.add("hidden");
+          if (suksesBox) suksesBox.classList.remove("hidden");
+
           showToast("Report pekerjaan berhasil direkap!", "success");
         } else {
-          showToast(res.message || "Gagal menyimpan laporan", "error");
+          showToast((res ? res.message : null) || "Gagal menyimpan laporan", "error");
         }
       } catch (err) {
         showToast("Gagal terhubung ke server", "error");
       } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        if (btn) {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
       }
     }
 
