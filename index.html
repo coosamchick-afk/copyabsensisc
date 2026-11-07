@@ -2257,15 +2257,16 @@ async function submitAttendance(tipe) {
       const selBesok = document.getElementById("rkPlanOutlet");
       const defaultOutlet = (currentUser && currentUser.outlet && currentUser.outlet.namaOutlet) ? currentUser.outlet.namaOutlet : "";
 
-      // 1. Render Multi-Select Checkbox untuk Tempat Bekerja Hari Ini
+      // 1. Render Checkbox Outlet Hari Ini (DIGEMBOK)
       if (cachedDaftarOutlet.length === 0) {
         panel.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Tidak ada data outlet</p>`;
       } else {
         panel.innerHTML = cachedDaftarOutlet.map((namaOut) => {
           const isChecked = namaOut === defaultOutlet ? "checked" : "";
           return `
-            <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-50 cursor-pointer transition">
-              <input type="checkbox" value="${namaOut}" ${isChecked} onchange="updateSelectedOutletsUI()" class="rk-outlet-checkbox w-4 h-4 accent-[#dc2626] rounded cursor-pointer" />
+            <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl ${isChecked ? 'bg-red-50 border border-red-200' : 'opacity-40'} cursor-not-allowed transition">
+              <!-- Atribut 'disabled' ditambahkan di bawah ini -->
+              <input type="checkbox" value="${namaOut}" ${isChecked} disabled class="rk-outlet-checkbox w-4 h-4 accent-[#dc2626] rounded cursor-not-allowed" />
               <span class="text-xs font-bold text-slate-700">${namaOut}</span>
             </label>
           `;
@@ -2273,9 +2274,13 @@ async function submitAttendance(tipe) {
       }
       updateSelectedOutletsUI();
 
-      // 2. Render Dropdown Outlet untuk Planning Besok
+      // 2. Render Dropdown Outlet Besok (DIGEMBOK)
       selBesok.innerHTML = `<option value="">-- Pilih Outlet Besok --</option>` +
         cachedDaftarOutlet.map(namaOut => `<option value="${namaOut}" ${namaOut === defaultOutlet ? "selected" : ""}>${namaOut}</option>`).join("");
+      
+      // Mematikan klik pada dropdown outlet besok
+      selBesok.disabled = true;
+      selBesok.classList.add("bg-slate-100", "text-slate-500", "cursor-not-allowed");
     }
 
     function toggleMultiOutletDropdown() {
